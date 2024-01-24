@@ -10,8 +10,8 @@
 /** \file pico/cyw43_driver.h
  *  \defgroup pico_cyw43_driver pico_cyw43_driver
  *
- * A wrapper around the lower level cyw43_driver, that integrates it with \ref pico_async_context
- * for handling background work.
+ * 低水準cyw43_driverのラッパーです。バックグラウンドworkを処理する
+ * ために \ref pico_async_context と統合されています。
  */
 
 #include "pico.h"
@@ -21,20 +21,21 @@
 extern "C" {
 #endif
 
-/*! \brief Initializes the lower level cyw43_driver and integrates it with the provided async_context
+/*! \brief 低水準cyw43_driveを初期化し、指定されたasync_contextと統合する
  *  \ingroup pico_cyw43_driver
  *
- *  If the initialization succeeds, \ref lwip_nosys_deinit() can be called to shutdown lwIP support
+ * 初期化が成功した場合、 \ref lwip_nosys_deinit() を呼び出してlwIPのサポートを
+ * 終了させることができます。
  *
- * \param context the async_context instance that provides the abstraction for handling asynchronous work.
- * \return true if the initialization succeeded
+ * \param context 非同期workの週釣果を提供するasync_contextインスタンス.
+ * \return 初期化が成功した場合はtrue
 */
 bool cyw43_driver_init(async_context_t *context);
 
-/*! \brief De-initialize the lowever level cyw43_driver and unhooks it from the async_context
+/*! \brief 低水準cyw43_driverを解放し、async_contextとの統合を解除する
  *  \ingroup pico_cyw43_driver
  *
- * \param context the async_context the cyw43_driver support was added to via \ref cyw43_driver_init
+ * \param context \ref cyw43_driver_init 経由でcyw43_driverが追加されたasync_context
 */
 void cyw43_driver_deinit(async_context_t *context);
 

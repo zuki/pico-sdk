@@ -13,14 +13,14 @@ extern "C" {
 
 /** \file pico/btstack_hci_transport_cyw43.h
 * \ingroup pico_cyw43_driver
-* \brief Adds low level Bluetooth HCI support
+* \brief 低水準Bluetooth HCIサポートを追加する
 */
 
 /**
- * \brief Get the Bluetooth HCI transport instance for cyw43
+ * \brief cyw43用のBluetooth HCIトランスポートインスタンスを取得する
  * \ingroup pico_cyw43_driver
  *
- * \return An instantiation of the hci_transport_t interface for the cyw43 chipset
+ * \return cyw43チップセット用のhci_transport_tインスタンス
  */
 const hci_transport_t *hci_transport_cyw43_instance(void);
 

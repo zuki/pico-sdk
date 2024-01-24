@@ -1,27 +1,35 @@
 /**
  * \defgroup pico_btstack pico_btstack
- * \brief Integration/wrapper libraries for <a href="https://github.com/bluekitchen/btstack">BTstack</a>
- * the documentation for which is <a href="https://bluekitchen-gmbh.com/btstack/">here</a>.
+ * \brief Integration/wrapper libraries for <a href="https://github.com/bluekitchen/btstack">BTstack</a>用の統合/ラッパーライブラリ.
+ * BTstackのドキュメントは<a href="https://bluekitchen-gmbh.com/btstack/">ここ</a>にあります。
  *
- * A supplemental license for BTstack (in addition to the stock BTstack licensing terms) is provided <a href="https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_btstack/LICENSE.RP">here</a>.
+ * BTstackの補足ライセンス（純正BTstackライセンス条項に追加）は<a href="https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_btstack/LICENSE.RP">ここ</a>にあります。
  *
- * The \c \b pico_btstack_ble library adds the support needed for Bluetooth Low Energy (BLE). The \c \b pico_btstack_classic library adds the support needed for Bluetooth Classic.
- * You can link to either library individually, or to both libraries thus enabling dual-mode support provided by BTstack.
+ * \c \b pico_btstack_ble ライブラリはBluetoothLowEnergy (BLE) に必要なサポートを
+ * 追加します。\c \b pico_btstack_classic ライブラリは Bluetooth Classic に必要な
+ * サポートを追加します。いずれかのライブラリに個別にリンクすることもできますし、
+ * 両方のライブラリをリンクすることでBTstackが提供するデュアルモードサポートも
+ * 実現できます。
  *
- * To use BTstack you need to provide a \c btstack_config.h file in your source tree and add its location to your include path.
- * The BTstack configuration macros \c ENABLE_CLASSIC and \c ENABLE_BLE are defined for you when you link the \c pico_btstack_classic and \c pico_btstack_ble libraries respectively, so you should not define them yourself.
+ * BTstackを使用するには、ソースツリーに \c btstack_config.h ファイルを用意し、
+ * その場所をインクルードパスに追加する必要があります。
+ *  \c pico_btstack_classic と \c pico_btstack_ble BTstack をリンクすると各々
+ * 構成マクロである \c ENABLE_CLASSIC と \c ENABLE_BLE が定義されますので
+ * 自分で定義する必要はありません。
  *
- * For more details, see <a href="https://bluekitchen-gmbh.com/btstack/develop/#how_to/">How to configure BTstack</a> and the relevant <a href="https://github.com/raspberrypi/pico-examples#pico-w-bluetooth">pico-examples</a>.
+ * 詳細は、<a href="https://bluekitchen-gmbh.com/btstack/develop/#how_to/">BTstackの構成法</a>と
+ * 関連する <a href="https://github.com/raspberrypi/pico-examples#pico-w-bluetooth">pico-examples</a> を参照してください。
  *
- * The follow libraries are provided for you to link.
- * * \c \b pico_btstack_ble - Adds Bluetooth Low Energy (LE) support.
- * * \c \b pico_btstack_classic - Adds Bluetooth Classic support.
- * * \c \b pico_btstack_sbc_encoder - Adds Bluetooth Sub Band Coding (SBC) encoder support.
- * * \c \b pico_btstack_sbc_decoder - Adds Bluetooth Sub Band Coding (SBC) decoder support.
- * * \c \b pico_btstack_bnep_lwip - Adds Bluetooth Network Encapsulation Protocol (BNEP) support using LwIP.
- * * \c \b pico_btstack_bnep_lwip_sys_freertos - Adds Bluetooth Network Encapsulation Protocol (BNEP) support using LwIP with FreeRTOS for NO_SYS=0.
+ * 以下のライブラリが提供されており、リンクすることができます。
+ * * \c \b pico_btstack_ble - Bluetooth Low Energy (LE) サポートを追加します.
+ * * \c \b pico_btstack_classic - Bluetooth Classic サポートを追加します.
+ * * \c \b pico_btstack_sbc_encoder - Bluetooth Sub Band Coding (SBC) エンコーダサポートを追加します.
+ * * \c \b pico_btstack_sbc_decoder - Bluetooth Sub Band Coding (SBC) デコーダサポートを追加します.
+ * * \c \b pico_btstack_bnep_lwip - lwIPを使ってBluetooth Network Encapsulation Protocol (BNEP) サポートを追加します.
+ * * \c \b pico_btstack_bnep_lwip_sys_freertos - NO_SYS=0のFreeRtOSでlwIPを使ってBluetooth Network Encapsulation Protocol (BNEP) サポートを追加します.
  *
- * \note The CMake function pico_btstack_make_gatt_header can be used to run the BTstack compile_gatt tool to make a GATT header file from a BTstack GATT file.
+ * \note CMake関数 pico_btstack_make_gatt_header を使用してBTstack compile_gatt ツールを実行し、BTstack GATTファイルからGATTヘッダーファイルを作成することができます。
  *
- * \sa pico_btstack_cyw43 in pico_cyw43_driver, which adds the cyw43 driver support needed for BTstack including BTstack run loop support.
+ * \sa pico_cyw43_driver の pico_btstack_cyw43 , これはBTstack実行ループサポートなどの
+ * BTstackに必要なcyw43ドライバのサポートを追加します。
  */

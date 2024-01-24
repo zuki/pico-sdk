@@ -7,57 +7,65 @@
 /** \file pico/async_context.h
  *  \defgroup pico_async_context pico_async_context
  *
- * An \ref async_context provides a logically single-threaded context for performing work, and responding
- * to asynchronous events. Thus an async_context instance is suitable for servicing third-party libraries
- * that are not re-entrant.
+ * An \ref async_context は論理的にはシングルスレッドのコンテキストを提供し、
+ * workの実行や非同期イベントへの応答を行います。したって、 async_context の
+ * インスタンスは、リエントラントでないサードパーティライブラリを扱うのに適している。
  *
- * The "context" in async_context refers to the fact that when calling workers or timeouts within the
- * async_context various pre-conditions hold:
+ * async_contextの"context"とは、async_context内でワーカーやタイムアウトを呼び出す際に
+ * さまざまな事前条件が以下の事実を持っていることを意味します。
  *
  * <ol>
- * <li>That there is a single logical thread of execution; i.e. that the context does not call any worker
- * functions concurrently.
- * <li>That the context always calls workers from the same processor core, as most uses of async_context rely on interaction
- * with IRQs which are themselves core-specific.
+ * <li>論理的な実行スレッドはただ一つだけ存在する。すなわち、コンテキストは
+ * ワーカー関数を同時には呼び出しません。</li>
+ * <li>コンテキストは常に同じプロセッサコアからワーカーを呼び出す。なぜなら、
+ * async_contextのほとんどの用途においてコア固有であるIRQとの相互作用に依存しているからです。</li>
  * </ol>
  *
- * THe async_context provides two mechanisms for asynchronous work:
+ * async_contextは非同期workのために次の2つのメカニズムを提供します。
  *
- * * <em>when_pending</em> workers, which are processed whenever they have work pending. See \ref async_context_add_when_pending_worker,
- * \ref async_context_remove_when_pending_worker, and \ref async_context_set_work_pending, the latter of which can be used from an interrupt handler
- * to signal that servicing work is required to be performed by the worker from the regular async_context.
- * * <em>at_time</em> workers, that are executed after at a specific time.
+ * * <em>when_pending</em> ワーカー。保留中のworkがあるたびに処理されます。
+ * \ref async_context_add_when_pending_worker, \ref async_context_remove_when_pending_worker,
+ * \ref async_context_set_work_pending を参照してください。最後の関数は、サービスするworkが
+ * 通常の async_context でワーカーにより実行される必要があることを通知するために、割り込み
+ * ハンドラから使用することができます。
+ * * <em>at_time</em> ワーカー。特定の時刻のあとに実行されます。
  *
- * Note: "when pending" workers with work pending are executed before "at time" workers.
+ * 注: 保留中のworkがある"when pending"ワーカーは"at time"ワーカーより先に実行されます。
  *
- * The async_context provides locking mechanisms, see \ref async_context_acquire_lock_blocking,
- * \ref async_context_release_lock and \ref async_context_lock_check which can be used by
- * external code to ensure execution of external code does not happen concurrently with worker code.
- * Locked code runs on the calling core, however \ref async_context_execute_sync is provided to
- * synchronously run a function from the core of the async_context.
+ * async_contextはロック機構を提供します。 \ref async_context_acquire_lock_blocking,
+ * \ref async_context_release_lock, \ref async_context_lock_check を参照してください。
+ * これらは外部コードの実行がワーカーコードとは同時に行われないことを保証するために
+ * 外部コードにより使用することができます。ロックされたコードは呼び出したコアで実行されますが、
+ * async_context のコアから同期的に関数を実行するために \ref async_ref async_context_execute_sync が
+ * 提供されています。
  *
- * The SDK ships with the following default async_contexts:
+ * SDKにはデフォルトで以下のasync_contextが存在します。
  *
- * async_context_poll - this context is not thread-safe, and the user is responsible for calling
- * \ref async_context_poll() periodically, and can use async_context_wait_for_work_until() to sleep
- * between calls until work is needed if the user has nothing else to do.
+ * async_context_poll - このコンテキストはスレッドセーフではありません。利用者は定期的に
+ * \ref async_context_poll() を呼び出す必要があります。なお、 \ref async_context_wait_for_work_until()
+ * を使用することにより、他にすることがなければworkが必要になるまで呼び出しの間スリープさせる
+ * ことができます。
  *
- * async_context_threadsafe_background - in order to work in the background, a low priority IRQ is used
- * to handle callbacks. Code is usually invoked from this IRQ context, but may be invoked after any other code
- * that uses the async context in another (non-IRQ) context on the same core. Calling \ref async_context_poll() is
- * not required, and is a no-op. This context implements async_context locking and is thus safe to call
- * from either core, according to the specific notes on each API.
+ * async_context_threadsafe_background - バックグラウンドで処理させるために優先度の低いIRQを使って
+ * コールバックを処理します。通常、コードはこのIRQコンテキストから呼び出されますが、同じコア上で
+ * 別の（非IRQ）コンテキストのasyncコンテキストを使用する他のコードの後に呼び出されることがあります。
+ * \ref async_context_poll() を呼び出す必要はありません。この関数はno-opです。このコンテキストは
+ * async_contextロックを実装しているため、各API固有の注意に従ってどちらのコアからも安全に呼び出す
+ * ことができますす。
  *
- * async_context_freertos - Work is performed from a separate "async_context" task, however once again, code may
- * also be invoked after a direct use of the async_context on the same core that the async_context belongs to. Calling
- * \ref async_context_poll() is not required, and is a no-op. This context implements async_context locking and is thus
- * safe to call from any task, and from either core, according to the specific notes on each API.
+ * async_context_freertos - 作業は独立した”async_context"タスクで実行されます。ただし、ここでも
+ * async_contextが属する同じコアでasync_contextを直接使用しているを～区の後にコードが呼び出される
+ * こともあります。 \ref async_context_poll()を呼び出す必要はありません。この関数はno-opです。
+ * このコンテキストはasync_contextロックを実装しているため、各API固有の注意に従って任意のタスクから、
+ * また、どちらのコアからも安全に呼び出すことができますす。
  *
- * Each async_context provides bespoke methods of instantiation which are provided in the corresponding headers (e.g.
- * async_context_poll.h, async_context_threadsafe_background.h, asycn_context_freertos.h).
- * async_contexts are de-initialized by the common async_context_deint() method.
+ * 各async_contextは対応するヘッダー（たとえば、async_context_poll.h、
+ * async_context_threadsafe_background.h、asyncn_context_freertos.h など）で提供されている
+ * 専用のインスタンス化メソッドを提供しています。async_contextは共通の async_context_deint()
+ * 関数により開放されます。
  *
- * Multiple async_context instances can be used by a single application, and they will operate independently.
+ * 1つのアプリケーションで複数のasync_contextインスタンスを使用することができ、それらは独立して
+ * 動作します。
  */
 
 #ifndef _PICO_ASYNC_CONTEXT_H
@@ -78,68 +86,69 @@ enum {
 
 typedef struct async_context async_context_t;
 
-/*! \brief A "timeout" instance used by an async_context
+/*! \brief async_contextで使用する"timeout"インスタンス
  *  \ingroup pico_async_context
  *
- *  A "timeout" represents some future action that must be taken at a specific time.
- *  Its methods are called from the async_context under lock at the given time
+ *  "timeout"は特定の時刻に処理される何らかの将来のアクションを表します。
+ *  その関数は指定された時刻にロック下でasync_contextから呼び出されます。
  *
  * \see async_context_add_worker_at
  * \see async_context_add_worker_in_ms
  */
 typedef struct async_work_on_timeout {
     /*!
-     * private link list pointer
+     * プライベートなリンク知るとポインタ
      */
     struct async_work_on_timeout *next;
     /*!
-     * Method called when the timeout is reached; may not be NULL
+     * タイムアウトに達した際に呼び出される関数; NULLであってはいけない
      *
-     * Note, that when this method is called, the timeout has been removed from the async_context, so
-     * if you want the timeout to repeat, you should re-add it during this callback
+     * 注: この関数が呼び出された際, このtimeoutはasync_contextから削除されています。
+     * したがって、再度タイムアウトが必要な場合はこのコールバックの中で再度timeoutを
+     * 追加する必要があります。
      * @param context
      * @param timeout
      */
     void (*do_work)(async_context_t *context, struct async_work_on_timeout *timeout);
     /*!
-     * The next timeout time; this should only be modified during the above methods
-     * or via async_context methods
+     * 次のタイムアウト時刻; これの変更は上の関数内、またはasync_context関数経由でのみ
+     * 行わなければいけません。
      */
     absolute_time_t next_time;
     /*!
-     * User data associated with the timeout instance
+     * timeoutインスタンスに関連するユーザデータ
      */
     void *user_data;
 } async_at_time_worker_t;
 
-/*! \brief A "worker" instance used by an async_context
+/*! \brief async_contextが使用する"worker"インスタンス
  *  \ingroup pico_async_context
  *
- *  A "worker" represents some external entity that must do work in response
- *  to some external stimulus (usually an IRQ).
- *  Its methods are called from the async_context under lock at the given time
+ *  "worker"は何らかの外部状況（通常はIRQ）に反応するために処理しなければならない
+ *  何らかの外部実体を表します。その関数は指定された時刻にロック下でasync_contextか
+ *  ら呼び出されます。
  *
  * \see async_context_add_worker_at
  * \see async_context_add_worker_in_ms
  */
 typedef struct async_when_pending_worker {
     /*!
-     * private link list pointer
+     * プライベートなリンク知るとポインタ
      */
     struct async_when_pending_worker *next;
     /*!
-     * Called by the async_context when the worker has been marked as having "work pending"
+     * ワーカーが"work pending"とマーク付されている際にasync_contextにより呼び出されます。
      *
      * @param context the async_context
      * @param worker the function to be called when work is pending
      */
     void (*do_work)(async_context_t *context, struct async_when_pending_worker *worker);
     /**
-     * True if the worker need do_work called
+     * ワーカがdo_workを呼び出す必要がある場合はTrue
      */
     bool work_pending;
     /*!
-     * User data associated with the worker instance
+     * このワーカーインスタンスに関連するユーザデータ
      */
     void *user_data;
 } async_when_pending_worker_t;
@@ -149,7 +158,7 @@ typedef struct async_when_pending_worker {
 #define ASYNC_CONTEXT_FLAG_POLLED 0x4
 
 /*!
- * \brief Implementation of an async_context type, providing methods common to that type
+ * \brief Implementation of an async_contextタイプの実装, そのタイプに共通の関数を提供する
  * \ingroup pico_async_context
  */
 typedef struct async_context_type {
@@ -171,10 +180,11 @@ typedef struct async_context_type {
 } async_context_type_t;
 
 /*!
- * \brief Base structure type of all async_contexts. For details about its use, see \ref pico_async_context.
+ * \brief すべてのasync_contextのベースとなる構造体型. 使用法の詳細については
+ *  \ref pico_async_context を参照。
  * \ingroup pico_async_context
  *
- * Individual async_context_types with additional state, should contain this structure at the start.
+ * 追加の状態を持つ個々のasync_context_typesは最初にこの構造体を含む必要があります。
  */
 struct async_context {
     const async_context_type_t *type;
@@ -186,18 +196,19 @@ struct async_context {
 };
 
 /*!
- * \brief Acquire the async_context lock
+ * \brief async_contextロックを取得する
  * \ingroup pico_async_context
  *
- * The owner of the async_context lock is the logic owner of the async_context
- * and other work related to this async_context will not happen concurrently.
+ * async_contextロックの所有者はそのasync_contextのロジックの所有者であり、
+ * このasync_contextに関連する他のworkは同時には実行されません。
  *
- * This method may be called in a nested fashion by the the lock owner.
+ * この関数はロック所有者によってネストされた形で呼び出すことができます。
  *
- * \note the async_context lock is nestable by the same caller, so an internal count is maintained
- * 
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
- * worker method called by the async_context or from any other non-IRQ context.
+ * \note async_contextロックは同じcallerによりネスト可能なので、内部カウントが維持されます。
+ *
+ * \note （async_context_pollではなく）ロックを提供するasync_contextでは、この関数は
+ * スレッドセーフであり、async_contextより、または、他の非IRQコンテキストから呼び出された
+ * 任意のワーカーないから呼び出すことができます。
  *
  * \param context the async_context
  *
@@ -208,14 +219,15 @@ static inline void async_context_acquire_lock_blocking(async_context_t *context)
 }
 
 /*!
- * \brief Release the async_context lock
+ * \brief async_contextロックを解放する
  * \ingroup pico_async_context
  *
- * \note the async_context lock may be called in a nested fashion, so an internal count is maintained. On the outermost
- * release, When the outermost lock is released, a check is made for work which might have been skipped while the lock was held,
- * and any such work may be performed during this call IF the call is made from the same core that the async_context belongs to.
+ * \note async_contextロックはネストして呼び出すことができるため、内部カウントが維持されます。
+ * 最も外側のロックの場合、最も外側のロックが解放されると、ロックが保持されている間にスキップ
+ * された可能性のあるworkがチェックされ、async_contextが属するものと同じコアからの呼び出しで
+ * ある場合、そのようなworkはこの呼び出し中に実行される場合があります。
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -264,7 +276,7 @@ static inline uint32_t async_context_execute_sync(async_context_t *context, uint
  *
  * The time to fire is specified in the next_time field of the worker.
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -283,7 +295,7 @@ static inline bool async_context_add_at_time_worker(async_context_t *context, as
  *
  * The time to fire is specified by the at parameter.
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -302,9 +314,9 @@ static inline bool async_context_add_at_time_worker_at(async_context_t *context,
  *
  * An "at time" worker will run at or after a specific point in time, and is automatically when (just before) it runs.
  *
- * The time to fire is specified by a delay via the ms parameter 
+ * The time to fire is specified by a delay via the ms parameter
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -321,7 +333,7 @@ static inline bool async_context_add_at_time_worker_in_ms(async_context_t *conte
  * \brief Remove an "at time" worker from a context
  * \ingroup pico_async_context
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -341,7 +353,7 @@ static inline bool async_context_remove_at_time_worker(async_context_t *context,
  *
  * The time to fire is specified by a delay via the ms parameter
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -356,7 +368,7 @@ static inline bool async_context_add_when_pending_worker(async_context_t *contex
  * \brief Remove a "when pending" worker from a context
  * \ingroup pico_async_context
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any 
+ * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
  * worker method called by the async_context or from any other non-IRQ context.
  *
  * \param context the async_context
@@ -385,10 +397,10 @@ static inline void async_context_set_work_pending(async_context_t *context, asyn
 /*!
  * \brief Perform any pending work for polling style async_context
  * \ingroup pico_async_context
- * 
+ *
  * For a polled async_context (e.g. \ref async_context_poll) the user is responsible for calling this method
  * periodically to perform any required work.
- * 
+ *
  * This method may immediately perform outstanding work on other context types, but is not required to.
  *
  * \param context the async_context

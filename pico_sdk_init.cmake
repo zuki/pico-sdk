@@ -1,9 +1,11 @@
-# Pre-initialize the Raspberry Pi Pico SDK, setting up the platform and toolchain and some CMake utility functions
-# This file must be included prior to the project() call
+# プラットフォームとツールチェーン、CMakeユーティリティ関数を設定して
+# Raspberry Pi Pico SDKを初期化します。
+# このファイルはproject()を呼び出す前にインクルードする必要があります。
 
-# Note: this file is perhaps named badly, as it provides a method pico_sdk_init which
-# the enclosing project calls LATER to actually "initialize" the SDK (by including the CMakeLists.txt from this
-# same directory)
+# Note: おそらくこのファイルの名前はよくありません。なぜなら、このファイルは
+# pico_sdk_initというメソッドを提供しますが、これを含むプロジェクトが
+# （これと同じディレクトリにあるCMakeLists.txtをインクルードすることにより）
+# 後で実際にSDKを "初期化"するからです。
 
 if (NOT TARGET _pico_sdk_pre_init_marker)
     add_library(_pico_sdk_pre_init_marker INTERFACE)

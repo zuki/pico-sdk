@@ -16,25 +16,26 @@ extern "C" {
  * \defgroup pico_btstack_cyw43 pico_btstack_cyw43
  * \ingroup pico_cyw43_driver
  *
- * \brief Low-level Bluetooth HCI support.
+ * \brief 低水準Bluetooth HCIのサポート.
  *
- * This library provides utility functions to initialise and de-initialise BTstack for CYW43,
+ * このライブラリはCYW43用のBTStackを初期化・開放するためのユーティリティ関数を
+ * 提供します。
 */
 
-/*
- * \brief Perform initialisation of BTstack/CYW43 integration
+/**
+ * \brief BTstack/CYW43統合の初期化を実行する
  * \ingroup pico_btstack_cyw43
  *
- * \param context the async_context instance that provides the abstraction for handling asynchronous work.
+ * \param context 非同期workの抽象化を提供するasync_contextインスタンス.
  * \return true on success or false an error
  */
 bool btstack_cyw43_init(async_context_t *context);
 
-/*
- * \brief De-initialise BTstack/CYW43 integration
+/**
+ * \brief BTstack/CYW43統合を解放する
  * \ingroup pico_btstack_cyw43
  *
- * \param context the async_context the btstack_cyw43 support was added to via \ref btstack_cyw43_init
+ * \param context \ref btstack_cyw43_init 経由でbtstack_cyw43サポートが追加されたasync_context
  */
 void btstack_cyw43_deinit(async_context_t *context);
 

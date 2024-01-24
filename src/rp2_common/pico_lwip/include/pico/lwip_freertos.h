@@ -17,31 +17,33 @@ extern "C" {
 /** \file pico/lwip_freertos.h
 * \defgroup pico_lwip_freertos pico_lwip_freertos
 * \ingroup pico_lwip
-* \brief Glue library for integration lwIP in \c NO_SYS=0 mode with the SDK. Simple \c init and \c deinit
-* are all that is required to hook up lwIP (with full blocking API support) via an \ref async_context instance.
+* \brief \c NO_SYS=0 モードのlwIPとSDKを統合するためのGlueライブラリ.
+* \ref async_context インスタンスを介してlwIP（完全なブロッキングAPIのサポートを含む）
+* をフックするため必要な関数はシンプルな \c init と \c deinit だけです。
 */
 
-/*! \brief Initializes lwIP (NO_SYS=0 mode) support support for FreeRTOS using the provided async_context
+/*! \brief 指定されたasync_contextを使ってFreeRTOS用の（NO_SYS=0 モードの）lwIP サポートを初期化する
  *  \ingroup pico_lwip_freertos
  *
- * If the initialization succeeds, \ref lwip_freertos_deinit() can be called to shutdown lwIP support
+ * 初期化が成功した場合、 \ref lwip_freertos_deinit() を呼び出してlwIPのサポートを終了することができます。
  *
- * \param context the async_context instance that provides the abstraction for handling asynchronous work. Note in general
- * this would be an \ref async_context_freertos instance, though it doesn't have to be.
+ * \param context 非同期workを処理するための抽象化を提供するasync_contextインスタンス.
+ * 一般にこれはその必要はありませんが \ref  async_context_freertos のインスタンスである
+ * ことに注意してください。
  *
- * \return true if the initialization succeeded
+ * \return 初期化が成功した場合は true
 */
 bool lwip_freertos_init(async_context_t *context);
 
-/*! \brief De-initialize lwIP (NO_SYS=0 mode) support for FreeRTOS
+/*! \brief FreeRTOS用の（NO_SYS=0 モードの）lwIP サポートを解放する
  *  \ingroup pico_lwip_freertos
  *
- * Note that since lwIP may only be initialized once, and doesn't itself provide a shutdown mechanism, lwIP
- * itself may still consume resources.
+ * lwIPが初期化できるのは一度だけであり、lwIPはシャットダウンメカニズムを提供しないので
+ * lwIPは依然としてリソースを消費する可能性があることに注意してください。
  *
- * It is however safe to call \ref lwip_freertos_init again later.
+ * ただし、後に再び  \ref lwip_freertos_init を呼び出すことは安全です。
  *
- * \param context the async_context the lwip_freertos support was added to via \ref lwip_freertos_init
+ * \param context \ref lwip_freertos_init 経由でlwip_freertosサポートが追加されたasync_context
 */
 void lwip_freertos_deinit(async_context_t *context);
 

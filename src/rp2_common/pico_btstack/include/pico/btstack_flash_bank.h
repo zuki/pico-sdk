@@ -25,10 +25,12 @@ extern "C" {
 #endif
 
 /**
- * \brief Return the singleton BTstack HAL flash instance, used for non-volatile storage
+ * \brief 不揮発性ストレージに使用されるシングルトンのBTstack HALフラッシュインスタンスを返す
  * \ingroup pico_btstack
  *
- * \note By default two sectors at the end of flash are used (see \c PICO_FLASH_BANK_STORAGE_OFFSET and \c PICO_FLASH_BANK_TOTAL_SIZE)
+ * \note デフォルトではフラッシュ末尾の2セクタが使用されます
+ * （ \c PICO_FLASH_BANK_STORAGE_OFFSET と  \c PICO_FLASH_BANK_TOTAL_SIZE を
+ * 参照）。
  */
 const hal_flash_bank_t *pico_flash_bank_instance(void);
 

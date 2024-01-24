@@ -10,10 +10,11 @@
 /** \file platform.h
  *  \defgroup pico_platform pico_platform
  *
- * Macros and definitions (and functions when included by non assembly code) for the RP2 family device / architecture
- * to provide a common abstraction over low level compiler / platform specifics.
+ * 低レベルのコンパイラ/プラットフォーム仕様に共通の抽象化を提供する
+ * RP2ファミリのデバイス/アーキテクチャ用のマクロと定義（アセンブリ
+ * コード以外にincludeされる場合は関数も）。
  *
- * This header may be included by assembly code
+ * このヘッダはアセンブリコードによりincludeされることががあります
  */
 
 #include "hardware/platform_defs.h"
@@ -23,12 +24,12 @@
 // Marker for builds targeting the RP2040
 #define PICO_RP2040 1
 
-// PICO_CONFIG: PICO_STACK_SIZE, Stack Size, min=0x100, default=0x800, advanced=true, group=pico_platform
+// PICO_CONFIG: PICO_STACK_SIZE, Stack Size, min=0x100 (2K), default=0x800, advanced=true, group=pico_platform
 #ifndef PICO_STACK_SIZE
 #define PICO_STACK_SIZE _u(0x800)
 #endif
 
-// PICO_CONFIG: PICO_HEAP_SIZE, Heap size to reserve, min=0x100, default=0x800, advanced=true, group=pico_platform
+// PICO_CONFIG: PICO_HEAP_SIZE, Heap size to reserve, min=0x100, default=0x800 (2K), advanced=true, group=pico_platform
 #ifndef PICO_HEAP_SIZE
 #define PICO_HEAP_SIZE _u(0x800)
 #endif
@@ -146,23 +147,23 @@ static inline uint __builtin_ctz(uint x) {
 extern "C" {
 #endif
 
-/*! \brief Marker for an interrupt handler
+/*! \brief 割り込みハンドラ用のマーカー
  *  \ingroup pico_platform
  *
- * For example an IRQ handler function called my_interrupt_handler:
+ * たとえば、IRQハンドラ関数がmy_interrupt_handlerの場合:
  *
  *     void __isr my_interrupt_handler(void) {
  */
 #define __isr
 
-/*! \brief Section attribute macro for placement in RAM after the `.data` section
+/*! \brief RAM上で`.data`セクションのあとに置くためのセクション属性マクロ
  *  \ingroup pico_platform
  *
- * For example a 400 element `uint32_t` array placed after the .data section
+ * たとえば、`uint32_t`要素を400個持つ配列を.dataセクションの後ろに置く場合
  *
  *     uint32_t __after_data("my_group_name") a_big_array[400];
  *
- * The section attribute is `.after_data.<group>`
+ * セクション属性は `.after_data.<group>` となる。
  *
  * \param group a string suffix to use in the section name to distinguish groups that can be linker
  *              garbage-collected independently

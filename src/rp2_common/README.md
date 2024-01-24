@@ -1,8 +1,10 @@
-This directory contains libraries specifically targeting the RP2040 or possible future related devices. It is selected when
-`PICO_PLATFORM=rp2040` (the default) is specified for the build
+**rp2_common** ディレクトリには特にRP2040または将来関連する可能性のあるデバイスをターゲットと
+したライブラリが含まれています。ビルド時に `PICO_PLATFORM=rp2040` (デフォルト) が
+指定された場合に選択されます。
 
-`hardware_` libraries exist for individual hardware components to provide a simple API
-providing a thin abstraction hiding the details of accessing the hardware registers directly.
+`hardware_`ライブラリは個々のハードウェアコンポーネンごとに存在し、ハードウェアの
+レジスタに直接アクセスするための詳細を隠す薄い抽象化を提供するシンプルなAPIを提供
+します。
 
-`pico_` provides higher level functionality you might generally find in say an OS kernel, as well
-as runtime support familiar to most C programmers.
+`pico_` ライブラリは、一般にOSカーネルに見られるような高水準機能と、ほとんどの
+Cプログラマに馴染みのあるランタイムサポートを提供します。

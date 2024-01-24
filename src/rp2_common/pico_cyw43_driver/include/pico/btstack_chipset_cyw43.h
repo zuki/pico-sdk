@@ -10,7 +10,7 @@
 #include "btstack_chipset.h"
 
 /**
- * \brief Return the singleton BTstack chipset CY43 API instance
+ * \brief シングルトンのBTstackチップセットCY43 APIインスタンスを返す
  * \ingroup pico_btstack
  */
 const btstack_chipset_t * btstack_chipset_cyw43_instance(void);

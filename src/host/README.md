@@ -1,14 +1,15 @@
-This is a basic set of replacement library implementations sufficient to get simple applications
-running on your computer (Raspberry Pi OS, Linux, macOS or Windows using Cygwin or Windows Subsystem for Linux).
-It is selected by `PICO_PLATFORM=host` in your CMake build
+**host** ディレクトリにはコンピュータ（Raspberry Pi OSやLinux、macOS、Cygwinや
+Windows Subsystem for Linuxを使用したWindows）上で簡単なアプリケーションを実行
+できるようにするための基本的な置換ライブラリの実装が含まれています。CMakeビルドで`PICO_PLATFORM=host`とすることで選択されます。
 
-This can be extremely useful for testing and debugging higher level application code, or porting code which is not yet small enough 
-to run on the RP2040 device itself.
+より高度なアプリケーションコードのテストやデバッグ、あるいは、RP2040で実行できる
+ほど小さくはないコードの移植に非常に便利です。
 
-This base level host library provides a minimal environment to compile programs, but is likely sufficient for programs
-that don't access hardware directly.
+この基本レベルのホストライブラリはプログラムをコンパイルするための最小限の環境を
+提供しますが、ハードウェアに直接アクセスしないプログラムには十分だと思われます。
 
-It is possible however to inject additional SDK library implementations/simulations to provide 
-more complete functionality. For an example of this see the [pico-host-sdl](https://github.com/raspberrypi/pico-host-sdl) 
-which uses the SDL2 library to add additional library support for pico_multicore, timers/alarms in pico-time and 
-pico-audio/pico-scanvideo from [pico-extras](https://github.com/raspberrypi/pico-extras)
+しかし、より完全な機能を提供するために他のSDKライブラリの実装やシミュレーションを注入
+することが可能です。この例としては、pico_multicore、pico-timeのタイマー/アラーム、
+[pico-extras](https://github.com/raspberrypi/pico-extras)のpico-audio/pico-scanvideoに
+SDL2ライブラリのサポートを追加した[pico-host-sdl](https://github.com/raspberrypi/pico-host-sdl)を
+参照してください。

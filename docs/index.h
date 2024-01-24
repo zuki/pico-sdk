@@ -7,9 +7,9 @@
 // Here to organize documentation order
 
 /**
- * \defgroup hardware Hardware APIs
- * This group of libraries provides a thin and efficient C API / abstractions to access the RP2040 hardware without having to read and write
- * hardware registers directly.
+ * \defgroup hardware ハードウェアAPI
+ * このライブラリ群はハードウェアレジスタを直接読み書きすることなく、
+ * RP2040ハードウェアにアクセスするための効率的で薄いC API/抽象化を提供します.
  * @{
  * \defgroup hardware_adc hardware_adc
  * \defgroup hardware_base hardware_base
@@ -37,9 +37,9 @@
  * \defgroup hardware_xosc hardware_xosc
  * @}
  *
- * \defgroup high_level High Level APIs
- * This group of libraries provide higher level functionality that isn't hardware related or provides a richer
- * set of functionality above the basic hardware interfaces
+ * \defgroup high_level 高水準API
+ * このライブラリ群は、ハードウェアに関連しないより高水準の機能や基本的な
+ * ハードウェアインタフェースを超えるよりリッチな機能を提供します.
  * @{
  * \defgroup pico_async_context pico_async_context
  * \defgroup pico_flash pico_flash
@@ -53,15 +53,15 @@
  * \defgroup pico_util pico_util
  * @}
  *
- * \defgroup third_party Third-party Libraries
- * Third party libraries for implementing high level functionality.
+ * \defgroup third_party サードパーティライブラリ
+ * 高水準機能を実装するためのサードパーティライブラリ.
  * @{
  * \defgroup tinyusb_device tinyusb_device
  * \defgroup tinyusb_host tinyusb_host
  * @}
  *
- * \defgroup networking Networking Libraries
- * Functions for implementing networking
+ * \defgroup networking ネットワークライブラリ
+ * ネットワックを実装するための関数.
  * @{
  * \defgroup pico_btstack pico_btstack
  * \defgroup pico_lwip pico_lwip
@@ -69,10 +69,10 @@
  * \defgroup pico_cyw43_arch pico_cyw43_arch
  * @}
  *
- * \defgroup runtime Runtime Infrastructure
- * Libraries that are used to provide efficient implementation of certain
- * language level and C library functions, as well as CMake INTERFACE libraries
- * abstracting the compilation and link steps in the SDK
+ * \defgroup runtime ランタイムインフラストラクチャ
+ * 特定の言語レベルとCライブラリ関数の効率的な実装を提供するために使用される
+ * ライブラリとSDKのコンパイルとリンクのステップを抽象化するCMake INTERFACE
+ * ライブラリ.
  * @{
  * \defgroup boot_stage2 boot_stage2
  * \defgroup pico_base pico_base
@@ -94,8 +94,8 @@
  * \defgroup pico_standard_link pico_standard_link
  * @}
  *
- * \defgroup misc External API Headers
- * Headers for interfaces that are shared with code outside of the SDK
+ * \defgroup misc 外部APIヘッダー
+ * SDK以外のコードで共有されるインタフェース用のヘッダー.
  * @{
  * \defgroup boot_picoboot boot_picoboot
  * \defgroup boot_uf2 boot_uf2

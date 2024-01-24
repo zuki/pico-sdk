@@ -1,3 +1,6 @@
-This directory code that is common to all builds regardless of `PICO_PLATFORM`. It is a mix
-of common header files, or high level functionality built entirely using `hardware_` or `pico_` libraries provided
-by the actual target `PICO_PLATFORM`` 
+## 各ディレクトリのREADME
+
+**common** ディレクトリには`PICO_PLATFORM`には関係なく、すべてのビルドに
+共通するコードが含まれています。共通のヘッダファイルと、実際のターゲットである
+`PICO_PLATFORM` で提供される `hardware_`や`pico_`ライブラリを使って構築される
+高水準機能が混在しています。

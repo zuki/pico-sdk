@@ -1,21 +1,23 @@
-## Examples Index {#examples_page}
+## サンプルコード索引 {#examples_page}
 
-This page links to the various example code fragments in this documentation. For more complete examples, please see the [pico-examples](https://github.com/raspberrypi/pico-examples) repository, which contains complete buildable projects.
+このページにはこのドキュメントに存在する様々なサンプルコードへのリンクを
+掲載しています。より完全なサンプルコードについては[pico-examples](https://github.com/raspberrypi/pico-examples)
+リポジトリを参照してください。
 
- - [RTC example](@ref rtc_example)
- - [UART example](@ref uart_example)
- - [ADC example](@ref adc_example)
- - [I2C example](@ref i2c_example)
- - [Clock example](@ref clock_example)
- - [Timer example](@ref timer_example)
- - [Flash programming example](@ref flash_example)
- - [Watchdog example](@ref watchdog_example)
- - [Divider example](@ref divider_example)
- - [PWM example](@ref pwm_example)
- - [Multicore example](@ref multicore_example)
- - [Reset example](@ref reset_example)
+ - [RTCサンプルコード](@ref rtc_example)
+ - [UARTサンプルコード](@ref uart_example)
+ - [ADCサンプルコード](@ref adc_example)
+ - [I2Cサンプルコード](@ref i2c_example)
+ - [Clockサンプルコード](@ref clock_example)
+ - [Timerサンプルコード](@ref timer_example)
+ - [Flashプログラミングサンプルコード](@ref flash_example)
+ - [Watchdogサンプルコード](@ref watchdog_example)
+ - [Dividerサンプルコード](@ref divider_example)
+ - [PWMサンプルコード](@ref pwm_example)
+ - [Multicoreサンプルコード](@ref multicore_example)
+ - [Resetサンプルコード](@ref reset_example)
 
-
-All examples are "Copyright (c) 2020 Raspberry Pi (Trading) Ltd", and are released under a 3-Clause BSD licence. Briefly, this means you are free to use the example code
-as long as you retain the copyright notice. Full details on the licence can be found [here](https://opensource.org/licenses/BSD-3-Clause).
-
+すべてのサンプルコードは "Copyright (c) 2020 Raspberry Pi (Trading) Ltd" であり、
+3-Clause BSDライセンスの下で公開されています。簡単に言うと、著作権表示を保持する限り、
+サンプルコードを自由に使用できるということです。ライセンスの詳細については[こちら](https://opensource.org/licenses/BSD-3-Clause)を
+ご覧ください。

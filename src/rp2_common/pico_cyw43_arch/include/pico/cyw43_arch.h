@@ -34,100 +34,109 @@ extern "C" {
 /**
  * \defgroup cyw43_driver cyw43_driver
  * \ingroup pico_cyw43_arch
- * \brief Driver used for Pico W wireless
+ * \brief Pico W wirelessで使用されれるドライバ
 */
 
 /**
  * \defgroup cyw43_ll cyw43_ll
  * \ingroup cyw43_driver
- * \brief Low Level CYW43 driver interface
+ * \brief 低水準CYW43ドライバインタフェース
 */
 
 /** \file pico/cyw43_arch.h
  *  \defgroup pico_cyw43_arch pico_cyw43_arch
  *
- * Architecture for integrating the CYW43 driver (for the wireless on Pico W) and lwIP (for TCP/IP stack) into the SDK. It is also necessary for accessing the on-board LED on Pico W
+ * CYW43ドライバ（Pico Wのワイヤレス用）とlwIP（TCP/IPスタック用）をSDKに統合する
+ * ためのアーキテクチャです。Pico WのオンボードLEDにアクセスするためにも必要です。
  *
- * Both the low level \c cyw43_driver and the lwIP stack require periodic servicing, and have limitations
- * on whether they can be called from multiple cores/threads.
+ * 低水準 \c cyw43_driver とlwIPスタックは定期的なサービスを必要とします。また、
+ * 複数のコア/スレッドから呼び出すことが可能か否かについては制限があります。
  *
- * \c pico_cyw43_arch attempts to abstract these complications into several behavioral groups:
+ * \c pico_cyw43_arch はこれらの複雑性をいくつかの振る舞いグループに抽象化しています。
  *
- * * \em 'poll' - This not multi-core/IRQ safe, and requires the user to call \ref cyw43_arch_poll periodically from their main loop
- * * \em 'thread_safe_background' - This is multi-core/thread/task safe, and maintenance of the driver and TCP/IP stack is handled automatically in the background
- * * \em 'freertos' - This is multi-core/thread/task safe, and uses a separate FreeRTOS task to handle lwIP and and driver work.
+ * * \em 'poll' - マルチコア/IRQセーフではありません。メインループから定期的に \ref cyw43_arch_poll を呼び出す必要があります。
+ * * \em 'thread_safe_background' - マルチコア/スレッド/タスクセーフです。ドライバとTCP/IPスタックのメンテナンスはバックグラウンドで自動的に処理されます。
+ * * \em 'freertos' - マルチコア/スレッド/タスクセーフです。lwIPとドライバ作業の処理に個別のFreeRTOSタスクを使用します。
  *
- * As of right now, lwIP is the only supported TCP/IP stack, however the use of \c pico_cyw43_arch is intended to be independent of
- * the particular TCP/IP stack used (and possibly Bluetooth stack used) in the future. For this reason, the integration of lwIP
- * is handled in the base (\c pico_cyw43_arch) library based on the #define \ref CYW43_LWIP used by the \c cyw43_driver.
+ * 現時点ではサポートされているTCP/IPスタックはlwIPだけですが、\c pico_cyw43_arch  の使用は
+ * 将来的には特定のTCP/IPスタックに（また、おそらくはBluetoothスタックにも）依存しないように
+ * することをめざしています。そのため、lwIP の統合は、\c cyw43_driverで使用される
+ * #define \ref CYW43_LWIP に基づいてベースライブラリ（ \ref pico_ciw43_arch）で処理されます。
  *
- * \note As of version 1.5.0 of the Raspberry Pi Pico SDK, the \c pico_cyw43_arch library no longer directly implements
- * the distinct behavioral abstractions. This is now handled by the more general \ref pico_async_context library. The
- * user facing behavior of pico_cyw43_arch has not changed as a result of this implementation detail, however pico_cyw43_arch
- * is now just a thin wrapper which creates an appropriate async_context and makes a simple call to add lwIP or cyw43_driver support
- * as appropriate. You are free to perform this context creation and adding of lwIP, cyw43_driver or indeed any other additional
- * future protocol/driver support to your async_context, however for now pico_cyw43_arch does still provide a few cyw43_ specific (i.e. Pico W)
- * APIs for connection management, locking and GPIO interaction.
+ * \note Raspberry Pi Pico SDKバージョン 1.5.0以降、 \c pico_cyw43_arch ライブリは個別の動作抽象を
+ * 直接実装しなくなり、より汎用的な \ref pico_async_context ライブラリで処理するようになりました。
+ * しかし、ユーザが直面するpico_cyw43_archの振る舞いはこの実証の詳細の結果変わりません。
+ * pico_cyw43_archは今や、適切なasync_contextを作成し、必要に応じてlwIPまたはcyw43_driverサポートを
+ * 追加する単純な呼び出しを行う、単なる薄いラッパーになったからです。このコンテキストの作成や
+ * lwIP、cyw43_driver、さらに将来追加されるであろう任意のプロトコル/ドライバサポートを
+ * async_context に自由に追加することができますが、現時点ではpico_cyw43_archはいぜんとして
+ * 接続管理やロック、GPIOインタラクションのためのcyw43_ 固有（すなわち、Pico W用)の APIを提供しています。
  *
- * \note The connection management APIs at least may be moved
- * to a more generic library in a future release. The locking methods are now backed by their \ref pico_async_context equivalents, and
- * those methods may be used interchangeably (see \ref cyw43_arch_lwip_begin, \ref cyw43_arch_lwip_end and \ref cyw43_arch_lwip_check for more details).
+ * \note 将来のリリースでは少なくとも接続管理APIはより汎用的なライブラリに移行される可能性が
+ * あります。ロック関数は、今のところ \ref pico_async_context の相当関数によりバックアップされて
+ * おり、 それらの関数は互換的に使用することができます（詳細については、 \ref cyw43_arch_lwip_begin,
+ *  \ref cyw43_arch_lwip_end,  \ref cyw43_arch_lwip_check を参照してください）。
  *
- * \note For examples of creating of your own async_context and addition of \c cyw43_driver and \c lwIP support, please
- * refer to the specific source files \c cyw43_arch_poll.c, \c cyw43_arch_threadsafe_background.c and \c cyw43_arch_freertos.c.
+ * \note 独自のasync_contextの作成、 \c cyw43_driver や \c lwIP サポートの追加の例については、
+ * ソースファイル \c cyw43_arch_poll.cや \c cyw43_arch_threadsafe_background.c 、
+ * \c cyw43_arch_freertos.cを参照してください。
  *
- * Whilst you can use the \c pico_cyw43_arch library directly and specify \ref CYW43_LWIP (and other defines) yourself, several
- * other libraries are made available to the build which aggregate the defines and other dependencies for you:
+ * \c pico_cyw43_arch ライブラリを直接使用して \ref CYW43_LWIP （やその他の定義）を自分で指定する
+ * こともできますが、定義やその他の依存関係を集約してビルドするために使用することができるライブラリも
+ * あります。
  *
- * * \b pico_cyw43_arch_lwip_poll - For using the RAW lwIP API (in `NO_SYS=1` mode) without any background processing or multi-core/thread safety.
+ * * \b pico_cyw43_arch_lwip_poll - RAW lwIP API（`NO_SYS=1`モード）をバックグラウンド処理やマルチコア/スレッドセーフなしで使用する。
+ *    ユーザはメインループから定期的に \ref cyw43_arch_pollを呼び出す必要があります。
  *
- *    The user must call \ref cyw43_arch_poll periodically from their main loop.
+ *    このラッパーライブラリは
+ *    - \c CYW43_LWIP=1 を設定して \c pico_cyw43_arch と \c cyw43_driver でlwIP サポートを有効にします。
+ *    - \c PICO_CYW43_ARCH_POLL=1 を設定してポーリング処理を選択します。
+ *    - lwIPを取り込むために依存関係に \c pico_lwip を追加します。
  *
- *    This wrapper library:
- *    - Sets \c CYW43_LWIP=1 to enable lwIP support in \c pico_cyw43_arch and \c cyw43_driver.
- *    - Sets \c PICO_CYW43_ARCH_POLL=1 to select the polling behavior.
- *    - Adds the \c pico_lwip as a dependency to pull in lwIP.
+ * * \b pico_cyw43_arch_lwip_threadsafe_background - RAW lwIP APIを (`NO_SYS=1` モードで)マルチコア/スレッドセーフで使用し、バックグラウンドで自動的に  \c cyw43_driver と lwIP を処理します。
  *
- * * \b pico_cyw43_arch_lwip_threadsafe_background - For using the RAW lwIP API (in `NO_SYS=1` mode) with multi-core/thread safety, and automatic servicing of the \c cyw43_driver and
- * lwIP in background.
+ *    \c cyw43_driver の高レベルAPI (cyw43.h) の呼び出しはいずれかのコアから、またはlwIPコールバック
+ * から可能ですが、lwIPコールバック以外からの（（スレッドセーフではない）lwIPへの呼び出しは必ず
+ * \ref cyw43_arch_lwip_begin と \ref cyw43_arch_lwip_end で囲んでください。lwIPコールバック内から
+ * 行われる呼び出しも囲むことも問題ありません。
  *
- *    Calls into the \c cyw43_driver high level API (cyw43.h) may be made from either core or from lwIP callbacks, however calls into lwIP (which
- * is not thread-safe) other than those made from lwIP callbacks, must be bracketed with \ref cyw43_arch_lwip_begin and \ref cyw43_arch_lwip_end. It is fine to bracket
- * calls made from within lwIP callbacks too; you just don't have to.
+ *    \note lwIPコールバックは（アラームコールバックと同様に）（優先順位の低い）IRQコンテキストで発生することがあるので他のコードとやりとりする際には注意が必要です。
  *
- *    \note lwIP callbacks happen in a (low priority) IRQ context (similar to an alarm callback), so care should be taken when interacting
- *    with other code.
+ *    このラッパーライブラリは
+ *    - \c CYW43_LWIP=1 を設定して \c pico_cyw43_arch と \c cyw43_driver でlwIPサポートを有効にします。
+ *    - \c PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 を設定してスレッドセーフな非ポーリング処理を選択します。
+ *    - lwIPを取り込むために依存関係に \c pico_lwip を追加します。
  *
- *    This wrapper library:
- *    - Sets \c CYW43_LWIP=1 to enable lwIP support in \c pico_cyw43_arch and \c cyw43_driver
- *    - Sets \c PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1 to select the thread-safe/non-polling behavior.
- *    - Adds the pico_lwip as a dependency to pull in lwIP.
+ *    このライブラリはFreeRTOSのRP2040ポートでもlwIPを`NO_SYS=1`モードで使用することが
+ * \em できます (どのタスクからでも \c cyw43_driver APIを呼び出すことができます。また、
+ * lwIPコールバックから、あるいは、呼び出しを \ref cyw43_arch_lwip_begin と \ref cyw43_arch_lwip_end
+ * で囲むことにより任意のタスクから、lwIPを呼び出すことができます）。ここでもlwIPコールバックで行う
+ * ことについては注意が必要です。IRQコンテキスト内からはほとんどのFreeRTOS APIを呼び出すことが
+ * できないからです。よほどの理由がない限り、 \c pico_cyw43_arch_lwip_sys_freertos で提供される
+ * 完全なFreeRTOS統合 (`NO_SYS=0`) を使うべきです。
  *
+ * * \b pico_cyw43_arch_lwip_sys_freertos - OS(`NO_SYS=0`)モードでのブロッキングソケット、マルチ
+ * コア/タスク/スレッドセーフ、 \c cyw43_driver とlwIPスタックの自動サービスなど、lwIP APIをすべて
+ * 使用します。
  *
- *    This library \em can also be used under the RP2040 port of FreeRTOS with lwIP in `NO_SYS=1` mode (allowing you to call \c cyw43_driver APIs
- * from any task, and to call lwIP from lwIP callbacks, or from any task if you bracket the calls with \ref cyw43_arch_lwip_begin and \ref cyw43_arch_lwip_end. Again, you should be
- * careful about what you do in lwIP callbacks, as you cannot call most FreeRTOS APIs from within an IRQ context. Unless you have good reason, you should probably
- * use the full FreeRTOS integration (with `NO_SYS=0`) provided by \c pico_cyw43_arch_lwip_sys_freertos.
+ *    このラッパーライブラリは
+ *    - \c CYW43_LWIP=1 を設定して \c pico_cyw43_arch と \c cyw43_driver でlwIPサポートを有効にします。
+ *    - \c PICO_CYW43_ARCH_FREERTOS=1 を設定して NO_SYS=0 lwip/FreeRTOS 統合を選択します。
+ *    - \c LWIP_PROVIDE_ERRNO=1 を設定してOSなしのコンパイルに必要なエラー番号を提供します。
+ *    - lwIPを取り込むために依存関係に \c pico_lwip を追加します。
+ *    - （lwIPのcontribディレクトリにある）lwip-contrib からlwIP/FreeRTOSのコードを追加します。
  *
- * * \b pico_cyw43_arch_lwip_sys_freertos - For using the full lwIP API including blocking sockets in OS (`NO_SYS=0`) mode, along with with multi-core/task/thread safety, and automatic servicing of the \c cyw43_driver and
- * the lwIP stack.
+ *    \c cyw43_driver の高レベルAPI (cyw43.h) の呼び出しは任意のタスクから、また、lwIPコールバックから
+ *    行えますが、IRQからは行えません。（スレッドセーフでない）lwIP RAW APIの呼び出しは必ず
+ *    \ref cyw43_arch_lwip_begin と \ref cyw43_arch_lwip_end で囲んでください。lwIPコールバック内から
+ *    の呼び出しをブラケットで囲むことは問題ありませんが、する必要はありません。
  *
- *    This wrapper library:
- *    - Sets \c CYW43_LWIP=1 to enable lwIP support in \c pico_cyw43_arch and \c cyw43_driver.
- *    - Sets \c PICO_CYW43_ARCH_FREERTOS=1 to select the NO_SYS=0 lwip/FreeRTOS integration
- *    - Sets \c LWIP_PROVIDE_ERRNO=1 to provide error numbers needed for compilation without an OS
- *    - Adds the \c pico_lwip as a dependency to pull in lwIP.
- *    - Adds the lwIP/FreeRTOS code from lwip-contrib (in the contrib directory of lwIP)
+ *    \note このラッパーライブラリは各自でFreeRTOSの機能をアプリケーションにリンクする必要があります。
  *
- *    Calls into the \c cyw43_driver high level API (cyw43.h) may be made from any task or from lwIP callbacks, but not from IRQs. Calls into the lwIP RAW API (which is not thread safe)
- *    must be bracketed with \ref cyw43_arch_lwip_begin and \ref cyw43_arch_lwip_end. It is fine to bracket calls made from within lwIP callbacks too; you just don't have to.
+ * * \b pico_cyw43_arch_none - TCP/IPスタックは必要ないがオンボードLEDを使用する場合に指定します。
  *
- *    \note this wrapper library requires you to link FreeRTOS functionality with your application yourself.
- *
- * * \b pico_cyw43_arch_none - If you do not need the TCP/IP stack but wish to use the on-board LED.
- *
- *    This wrapper library:
- *    - Sets \c CYW43_LWIP=0 to disable lwIP support in \c pico_cyw43_arch and \c cyw43_driver
+ *    このラッパーライブラリは
+ *    - Sets \c CYW43_LWIP=0 を設定して \c pico_cyw43_arch と \c cyw43_driver でlwIPサポートを無効にします。
  */
 
 // PICO_CONFIG: PARAM_ASSERTIONS_ENABLED_CYW43_ARCH, Enable/disable assertions in the pico_cyw43_arch module, type=bool, default=0, group=pico_cyw43_arch
@@ -150,120 +159,126 @@ extern "C" {
 #endif
 
 /*!
- * \brief Initialize the CYW43 architecture
+ * \brief CYW43アーキテクチャを初期化する
  * \ingroup pico_cyw43_arch
  *
- * This method initializes the `cyw43_driver` code and initializes the lwIP stack (if it
- * was enabled at build time). This method must be called prior to using any other \c pico_cyw43_arch,
- * \c cyw43_driver or lwIP functions.
+ * この関数は`cyw43_driver`コードを初期化し、（ビルド時に有効になっている場合は）
+ * lwIPスタックを初期化します。この関数は他の \c pico_cyw43_arch,  \c cyw43_driver,
+ * lwIP関数を使用する前に呼び出す必要があります。
  *
- * \note this method initializes wireless with a country code of \c PICO_CYW43_ARCH_DEFAULT_COUNTRY_CODE
- * which defaults to \c CYW43_COUNTRY_WORLDWIDE. Worldwide settings may not give the best performance; consider
- * setting PICO_CYW43_ARCH_DEFAULT_COUNTRY_CODE to a different value or calling \ref cyw43_arch_init_with_country
+ * \note この関数はワイヤレスを \c PICO_CYW43_ARCH_DEFAULT_COUNTRY_CODE で
+ * ワイヤレスを初期化します。デフォルトは \c CYW43_COUNTRY_WORLDWIDE です。
+ * この設定では最適なパフォーマンスが得られない可能性があります;
+ * PICO_CYW43_ARCH_DEFAULT_COUNTRY_CODEに別の値に設定するか、
+ * \ref cyw43_arch_init_with_country を呼び出すことを検討してください。
  *
- * By default this method initializes the cyw43_arch code's own async_context by calling
- * \ref cyw43_arch_init_default_async_context, however the user can specify use of their own async_context
- * by calling \ref cyw43_arch_set_async_context() before calling this method
+ * デフォルトでは、この関数は \ref cyw43_arch_init_default_async_context を呼び出して
+ * cyw43_archコードのasync_contextを初期化しますが、この関数を呼び出す前に
+ * \ref cyw43_arch_set_async_context() を呼び出すことにより独自のasync_contextの使用を
+ * 指定することができます。
  *
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0. そうでない場合はエラーコード \see pico_error_codes
  */
 int cyw43_arch_init(void);
 
 /*!
- * \brief Initialize the CYW43 architecture for use in a specific country
+ * \brief 指定の国で使用するようにCYW43アーキテクチャを初期化する
  * \ingroup pico_cyw43_arch
  *
- * This method initializes the `cyw43_driver` code and initializes the lwIP stack (if it
- * was enabled at build time). This method must be called prior to using any other \c pico_cyw43_arch,
- * \c cyw43_driver or lwIP functions.
+ * この関数は`cyw43_driver`コードを初期化し、（ビルド時に有効になっている場合は）
+ * lwIPスタックを初期化します。この関数は他の \c pico_cyw43_arch,  \c cyw43_driver,
+ * lwIP関数を使用する前に呼び出す必要があります。
  *
- * By default this method initializes the cyw43_arch code's own async_context by calling
- * \ref cyw43_arch_init_default_async_context, however the user can specify use of their own async_context
- * by calling \ref cyw43_arch_set_async_context() before calling this method
+ * * デフォルトでは、この関数は \ref cyw43_arch_init_default_async_context を呼び出して
+ * cyw43_archコードのasync_contextを初期化しますが、この関数を呼び出す前に
+ * \ref cyw43_arch_set_async_context() を呼び出すことにより独自のasync_contextの使用を
+ * 指定することができます。
  *
- * \param country the country code to use (see \ref CYW43_COUNTRY_)
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \param country 使用する国コード ( \ref CYW43_COUNTRY_ を参照)
+ * \return 初期化が成功した場合は 0. そうでない場合はエラーコード \see pico_error_codes
  */
 int cyw43_arch_init_with_country(uint32_t country);
 
 /*!
- * \brief De-initialize the CYW43 architecture
+ * \brief CYW43アーキテクチャを解放する
  * \ingroup pico_cyw43_arch
  *
- * This method de-initializes the `cyw43_driver` code and de-initializes the lwIP stack (if it
- * was enabled at build time). Note this method should always be called from the same core (or RTOS
- * task, depending on the environment) as \ref cyw43_arch_init.
+ * この関数は`cyw43_driver`コードを解放し、（ビルド時に有効になっていた場合は）
+ * lwIPスタックを解放します。この関数は常に  \ref cyw43_arch_init を実行したのと
+ * 同じコア（あるいは、完了によってはRTOSタスク）から呼び出す必要があります。
  *
- * Additionally if the cyw43_arch is using its own async_context instance, then that instance is de-initialized.
+ * さらに、cyw43_archが独自のasync_contextインスタンスを使用している場合は、
+ * そのインスタンスも解放されまう。
  */
 void cyw43_arch_deinit(void);
 
 /*!
- * \brief Return the current async_context currently in use by the cyw43_arch code
+ * \brief cyw43_archコードで現在使用されているasync_contextを返す
  * \ingroup pico_cyw43_arch
  *
- * \return the async_context.
+ * \return async_context.
  */
 async_context_t *cyw43_arch_async_context(void);
 
 /*!
- * \brief Set the async_context to be used by the cyw43_arch_init
+ * \brief cyw43_arch_initで使用するasync_contextをセットする
  * \ingroup pico_cyw43_arch
  *
- * \note This method must be called before calling cyw43_arch_init or cyw43_arch_init_with_country
- * if you wish to use a custom async_context instance.
+ * \note 独自のasync_contextインスタンスを使用したい場合は cyw43_arch_init または
+ * cyw43_arch_init_with_country を呼び出す前にこの関数を呼び出す必要があります。
  *
- * \param context the async_context to be used
+ * \param context 使用する async_context
  */
 void cyw43_arch_set_async_context(async_context_t *context);
 
 /*!
- * \brief Initialize the default async_context for the current cyw43_arch type
+ * \brief カレントcyw43_archタイプとしてデフォルトのasync_contextを初期化する
  * \ingroup pico_cyw43_arch
  *
- * This method initializes and returns a pointer to the static async_context associated
- * with cyw43_arch. This method is called by \ref cyw43_arch_init automatically
- * if a different async_context has not been set by \ref cyw43_arch_set_async_context
+ * この関数はcyw43_archに関連付けられたstaticなasync_contextへのポインタを初期化して
+ * 返します。この関数は \ref cyw43_arch_set_async_context によって異なる async_context が
+ * 設定されていない場合、自動的に \ref cyw43_arch_init によって呼び出されます。
  *
- * \return the context or NULL if initialization failed.
+ * \return context、または、初期化が失敗した場合は NULL
  */
 async_context_t *cyw43_arch_init_default_async_context(void);
 
 /*!
- * \brief Perform any processing required by the \c cyw43_driver or the TCP/IP stack
+ * \brief \c cyw43_driver またはTCP/IPスタックにより要求された任意の処理を実行する
  * \ingroup pico_cyw43_arch
  *
- * This method must be called periodically from the main loop when using a
- * \em polling style \c pico_cyw43_arch (e.g. \c pico_cyw43_arch_lwip_poll ). It
- * may be called in other styles, but it is unnecessary to do so.
+ * この関数は \em polling スタイルの \c pico_cyw43_arch （たとえば \c pico_cyw43_arch_lwip_poll ）を
+ * 使用している場合、メインループから定期的に呼び出す必要があります。他のスタイルでも呼び出すことは
+ * できますが、呼び出す必要はありません。
  */
 void cyw43_arch_poll(void);
 
 /*!
- * \brief Sleep until there is cyw43_driver work to be done
+ * \brief 実行するべきcyw43_driver workが現れるまでスリープする
  * \ingroup pico_cyw43_arch
  *
- * This method may be called by code that is waiting for an event to
- * come from the cyw43_driver, and has no work to do, but would like
- * to sleep without blocking any background work associated with the cyw43_driver.
+ * この関数はcyw43_driverからのイベントを待っているおり、何もする
+ * ことはないがcyw43_driverに関連するバックグラウンドworkをブロック
+ * することなくスリープしたいコードによって呼び出すことができます。
  *
- * \param until the time to wait until if there is no work to do.
+ * \param until するべきことが場合にその時まで待つ時間.
  */
 void cyw43_arch_wait_for_work_until(absolute_time_t until);
 
 /*!
  * \fn cyw43_arch_lwip_begin
- * \brief Acquire any locks required to call into lwIP
+ * \brief lwIPの呼び出しに必要なロックを取得する
  * \ingroup pico_cyw43_arch
  *
- * The lwIP API is not thread safe. You should surround calls into the lwIP API
- * with calls to this method and \ref cyw43_arch_lwip_end. Note these calls are not
- * necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
- * If you are using single-core polling only (pico_cyw43_arch_poll) then these calls are no-ops
- * anyway it is good practice to call them anyway where they are necessary.
+ * lwIP APIはスレッドセーフではありません。lwIP APIの呼び出しはこの関数の呼び出しと
+ * \ref cyw43_arch_lwip_end の呼び出しで囲む必要があります。lwIP のコールバックから
+ * lwIP API にコールバックする場合はこれらの呼び出しは不要なことに注意してください
+ * （ただし呼び出しても害はありません）。シングルコアでポーリングだけ (pico_cyw43_arch_poll)
+ * を使用している場合はこれらの呼び出しはいずれにせよno-opです。必要な場合はいつでも
+ * これらの関数を呼び出すのは良い習慣です。
  *
- * \note as of SDK release 1.5.0, this is now equivalent to calling \ref async_context_acquire_lock_blocking
- * on the async_context associated with cyw43_arch and lwIP.
+ * \note SDKリリース1.5.0ではこの関数は cyw43_archとlwIPに関連付けられたasync_contextに対して
+ * \ref async_context_acquire_lock_blocking を呼び出すことと同等になりました。
  *
  * \sa cyw43_arch_lwip_end
  * \sa cyw43_arch_lwip_protect
@@ -276,17 +291,17 @@ static inline void cyw43_arch_lwip_begin(void) {
 
 /*!
  * \fn void cyw43_arch_lwip_end(void)
- * \brief Release any locks required for calling into lwIP
+ * \brief lwIPを呼び出すために必要なロックを解放する
  * \ingroup pico_cyw43_arch
  *
- * The lwIP API is not thread safe. You should surround calls into the lwIP API
- * with calls to \ref cyw43_arch_lwip_begin and this method. Note these calls are not
- * necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
- * If you are using single-core polling only (pico_cyw43_arch_poll) then these calls are no-ops
- * anyway it is good practice to call them anyway where they are necessary.
+ * lwIP APIはスレッドセーフではありません。lwIP APIの呼び出しは  \ref cyw43_arch_lwip_begin と
+ * この関数の呼び出しで囲む必要があります。lwIP のコールバックからlwIP API にコールバックする
+ * 場合はこれらの呼び出しは不要なことに注意してください（ただし呼び出しても害はありません）。
+ * シングルコアでポーリングだけ (pico_cyw43_arch_poll) を使用している場合はこれらの呼び出しは
+ * いずれにせよno-opです。必要な場合はいつでもこれらの関数を呼び出すのは良い習慣です。
  *
- * \note as of SDK release 1.5.0, this is now equivalent to calling \ref async_context_release_lock
- * on the async_context associated with cyw43_arch and lwIP.
+ * \note SDKリリース1.5.0ではこの関数は cyw43_archとlwIPに関連付けられたasync_contextに対して
+ * \ref async_context_release_lock を呼び出すことと同等になりました。
  *
  * \sa cyw43_arch_lwip_begin
  * \sa cyw43_arch_lwip_protect
@@ -299,17 +314,17 @@ static inline void cyw43_arch_lwip_end(void) {
 
 /*!
  * \fn int cyw43_arch_lwip_protect(int (*func)(void *param), void *param)
- * \brief sad Release any locks required for calling into lwIP
+ * \brief lwIPの呼び出しをするロックが必要な関数を保護する
  * \ingroup pico_cyw43_arch
  *
- * The lwIP API is not thread safe. You can use this method to wrap a function
- * with any locking required to call into the lwIP API. If you are using
- * single-core polling only (pico_cyw43_arch_poll) then there are no
- * locks to required, but it is still good practice to use this function.
+ * lwIP APIはスレッドセーフではありません。この関数を使用してlwIP APIの
+ * 呼び出しにロックが必要な関数をラップすることができます。
+ * シングルコアでポーリングだけ (pico_cyw43_arch_poll) を使用している場合はロックは
+ * 不要ですが、それでもこの関数を使用するのは良い習慣です。
  *
- * \param func the function ta call with any required locks held
- * \param param parameter to pass to \c func
- * \return the return value from \c func
+ * \param func ロックの取得が必要な呼び出しをする関数
+ * \param param \c func にわたす引数
+ * \return \c func からの返り値
  * \sa cyw43_arch_lwip_begin
  * \sa cyw43_arch_lwip_end
  */
@@ -322,18 +337,16 @@ static inline int cyw43_arch_lwip_protect(int (*func)(void *param), void *param)
 
 /*!
  * \fn void cyw43_arch_lwip_check(void)
- * \brief Checks the caller has any locks required for calling into lwIP
+ * \brief CallerがlwIPの呼び出しに必要なロックを保持しているかチェックする
  * \ingroup pico_cyw43_arch
  *
- * The lwIP API is not thread safe. You should surround calls into the lwIP API
- * with calls to \ref cyw43_arch_lwip_begin and this method. Note these calls are not
- * necessary (but harmless) when you are calling back into the lwIP API from an lwIP callback.
+ * この関数はデバッグモードでは上記の条件を満たした（すなわち、lwIP APIの呼び出しが
+ * 安全でない）場合アサートします。
  *
- * This method will assert in debug mode, if the above conditions are not met (i.e. it is not safe to
- * call into the lwIP API)
+ * \note \ref cyw43_thread_lock_check に #define されている。
  *
- * \note as of SDK release 1.5.0, this is now equivalent to calling \ref async_context_lock_check
- * on the async_context associated with cyw43_arch and lwIP.
+ * \note SDKリリース1.5.0ではこの関数は cyw43_archとlwIPに関連付けられたasync_contextに対して
+ * \ref async_context_lock_check を呼び出すことと同等になりました。
  *
  * \sa cyw43_arch_lwip_begin
  * \sa cyw43_arch_lwip_protect
@@ -342,7 +355,7 @@ static inline int cyw43_arch_lwip_protect(int (*func)(void *param), void *param)
  */
 
 /*!
- * \brief Return the country code used to initialize cyw43_arch
+ * \brief cyw43_archの初期化に使用された国コードを返す
  * \ingroup pico_cyw43_arch
  *
  * \return the country code (see \ref CYW43_COUNTRY_)
@@ -350,150 +363,155 @@ static inline int cyw43_arch_lwip_protect(int (*func)(void *param), void *param)
 uint32_t cyw43_arch_get_country_code(void);
 
 /*!
- * \brief Enables Wi-Fi STA (Station) mode.
+ * \brief Wi-Fi STA (Station) モードを有効にする.
  * \ingroup pico_cyw43_arch
  *
- * This enables the Wi-Fi in \em Station mode such that connections can be made to other Wi-Fi Access Points
+ * Wi-Fi \em Station モードを有効にします。これにより他のWi-Fiアクセスポイントへの
+ * 接続が可能になります。
  */
 void cyw43_arch_enable_sta_mode(void);
 
 /*!
- * \brief Disables Wi-Fi STA (Station) mode.
+ * \brief Wi-Fi STA (Station) モードを無効にする.
  * \ingroup pico_cyw43_arch
  *
- * This disables the Wi-Fi in \em Station mode, disconnecting any active connection.
- * You should subsequently check the status by calling \ref cyw43_wifi_link_status.
+ * Wi-Fi \em Station モードを無効にし、アクティブなすべての接続を切断します。
+ * この関数に続いて \ref cyw43_wifi_link_status を呼び出してステータスを
+ * チェックする必要があります。
  */
 void cyw43_arch_disable_sta_mode(void);
 
 /*!
- * \brief Enables Wi-Fi AP (Access point) mode.
+ * \brief  Wi-Fi AP (Access point) モードを有効にする.
  * \ingroup pico_cyw43_arch
  *
- * This enables the Wi-Fi in \em Access \em Point mode such that connections can be made to the device by other Wi-Fi clients
- * \param ssid the name for the access point
- * \param password the password to use or NULL for no password.
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+ * Wi-Fi \em Access \em Point  モードを有効にします。これにより他のWi-Fi
+ * クライアントからデバイスへの接続が可能になります。
+ *
+ * \param ssid アクセスポイントの名前
+ * \param password 使用するパスワード、パスワードが設定されていない場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
  */
 void cyw43_arch_enable_ap_mode(const char *ssid, const char *password, uint32_t auth);
-    
+
 /*!
- * \brief Disables Wi-Fi AP (Access point) mode.
+ * \brief Wi-Fi AP (Access point) モードを無効にする.
  * \ingroup pico_cyw43_arch
  *
- * This Disbles the Wi-Fi in \em Access \em Point mode.
+ * Wi-Fi \em Access \em Point モードを無効にします。
  */
 void cyw43_arch_disable_ap_mode(void);
 
 /*!
- * \brief Attempt to connect to a wireless access point, blocking until the network is joined or a failure is detected.
+ * \brief ワイヤレスアクセスポイントへの接続を試み、ネットワークに参加するか、障害が検出されるまでブロックする.
  * \ingroup pico_cyw43_arch
  *
- * \param ssid the network name to connect to
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+ * \param ssid 接続するネットワークの名前
+ * \param pw 使用するネットワークのパスワード、パスワードが設定されていない場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
  *
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_blocking(const char *ssid, const char *pw, uint32_t auth);
 
 /*!
- * \brief Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined or a failure is detected.
+ * \brief SSIDとBSSIDを指定してワイヤレスアクセスポイントへの接続を試み、ネットワークに参加するか、障害が検出されるまでブロックする.
  * \ingroup pico_cyw43_arch
  *
- * \param ssid the network name to connect to
- * \param bssid the network BSSID to connect to or NULL if ignored
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+ * \param ssid 接続するネットワークの名前
+ * \param bssid 接続するネットワックBSSID, 無視する場合は NULL
+ * \param pw ネットワークパスワード、パスワードが不要な場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
  *
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_bssid_blocking(const char *ssid, const uint8_t *bssid, const char *pw, uint32_t auth);
 
 /*!
- * \brief Attempt to connect to a wireless access point, blocking until the network is joined, a failure is detected or a timeout occurs
+ * \brief ワイヤレスアクセスポイントへの接続を試み、ネットワークに参加するか、障害が検出されるか、タイムアウトが発生するまでブロックする.
  * \ingroup pico_cyw43_arch
  *
- * \param ssid the network name to connect to
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
- * \param timeout how long to wait in milliseconds for a connection to succeed before giving up
+ * \param ssid 接続するネットワークの名前
+ * \param pw ネットワークパスワード、パスワードが不要な場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
+ * \param timeout 接続が成功するまでどれだけ待つかをミリ秒単位で指定
  *
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_timeout_ms(const char *ssid, const char *pw, uint32_t auth, uint32_t timeout);
 
 /*!
- * \brief Attempt to connect to a wireless access point specified by SSID and BSSID, blocking until the network is joined, a failure is detected or a timeout occurs
+ * \brief SSIDとBSSIDを指定してワイヤレスアクセスポイントへの接続を試み、ネットワークに参加するか、障害が検出されるか、タイムアウトが発生するまでブロックする.
  * \ingroup pico_cyw43_arch
  *
- * \param ssid the network name to connect to
- * \param bssid the network BSSID to connect to or NULL if ignored
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
- * \param timeout how long to wait in milliseconds for a connection to succeed before giving up
+ * \param ssid 接続するネットワークの名前
+ * \param bssid 接続するネットワックBSSID, 無視する場合は NULL
+ * \param pw ネットワークパスワード、パスワードが不要な場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
+ * \param timeout 接続が成功するまでどれだけ待つかをミリ秒単位で指定
  *
- * \return 0 if the initialization is successful, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_bssid_timeout_ms(const char *ssid, const uint8_t *bssid, const char *pw, uint32_t auth, uint32_t timeout);
 
 /*!
- * \brief Start attempting to connect to a wireless access point
+ * \brief ワイヤレスアクセスポイントへの接続を開始する
  * \ingroup pico_cyw43_arch
  *
- * This method tells the CYW43 driver to start connecting to an access point. You should subsequently check the
- * status by calling \ref cyw43_wifi_link_status.
+ * この関数はCYW43ドライバにアクセスポイントへの接続を開始するように指示します。続けて
+ * \ref cyw43_wifi_link_status を呼び出してステータスを確認する必要があります。
  *
- * \param ssid the network name to connect to
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+ * \param ssid 接続するネットワークの名前
+ * \param pw ネットワークパスワード、パスワードが不要な場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
  *
- * \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_async(const char *ssid, const char *pw, uint32_t auth);
 
 /*!
- * \brief Start attempting to connect to a wireless access point specified by SSID and BSSID
+ * \brief SSIDとBSSIDを指定してワイヤレスアクセスポイントへの接続を開始する.
  * \ingroup pico_cyw43_arch
  *
- * This method tells the CYW43 driver to start connecting to an access point. You should subsequently check the
- * status by calling \ref cyw43_wifi_link_status.
+ * この関数はCYW43ドライバにアクセスポイントへの接続を開始するように指示します。続けて
+ * \ref cyw43_wifi_link_status を呼び出してステータスを確認する必要があります。
  *
- * \param ssid the network name to connect to
- * \param bssid the network BSSID to connect to or NULL if ignored
- * \param pw the network password or NULL if there is no password required
- * \param auth the authorization type to use when the password is enabled. Values are \ref CYW43_AUTH_WPA_TKIP_PSK,
- *             \ref CYW43_AUTH_WPA2_AES_PSK, or \ref CYW43_AUTH_WPA2_MIXED_PSK (see \ref CYW43_AUTH_)
+ * \param ssid 接続するネットワークの名前
+ * \param bssid 接続するネットワックBSSID, 無視する場合は NULL
+ * \param pw ネットワークパスワード、パスワードが不要な場合は NULL.
+ * \param auth パスワードが有効な場合に使用する認証タイプ. 値は  \ref CYW43_AUTH_WPA_TKIP_PSK,
+ *             \ref CYW43_AUTH_WPA2_AES_PSK, \ref CYW43_AUTH_WPA2_MIXED_PSK ( \ref CYW43_AUTH_ を参照)
+ * \param timeout 接続が成功するまでどれだけ待つかをミリ秒単位で指定
  *
- * \return 0 if the scan was started successfully, an error code otherwise \see pico_error_codes
+ * \return 初期化が成功した場合は 0, それ以外はエラーコード. \see pico_error_codes
  */
 int cyw43_arch_wifi_connect_bssid_async(const char *ssid, const uint8_t *bssid, const char *pw, uint32_t auth);
 
 /*!
- * \brief Set a GPIO pin on the wireless chip to a given value
+ * \brief ワイヤレスチップのGPIOピンに指定の値をセットする.
  * \ingroup pico_cyw43_arch
- * \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_set instead if you wish
- * to check for errors.
+ * \note この関数はGPIOのセットエラーをチェックしません。エラーのチェックを行いたい場合は低水準関数
+ * \ref cyw43_gpio_set を使用できます。
  *
- * \param wl_gpio the GPIO number on the wireless chip
- * \param value true to set the GPIO, false to clear it.
+ * \param wl_gpio ワイヤレスチップのGPIO番号
+ * \param value GPIOをセットする場合は true, クリアする場合は false to clear it.
  */
 void cyw43_arch_gpio_put(uint wl_gpio, bool value);
 
 /*!
- * \brief Read the value of a GPIO pin on the wireless chip
+ * \brief ワイヤレスチップのGPIOピンの値を読み取る
  * \ingroup pico_cyw43_arch
- * \note this method does not check for errors setting the GPIO. You can use the lower level \ref cyw43_gpio_get instead if you wish
- * to check for errors.
+ * \note この関数はGPIOのセットエラーをチェックしません。エラーのチェックを行いたい場合は低水準関数
+ * \ref cyw43_gpio_get を使用できます。
  *
- * \param wl_gpio the GPIO number on the wireless chip
- * \return true if the GPIO is high, false otherwise
+ * \param wl_gpio ワイヤレスチップのGPIO番号
+ * \return GPIOがHighの場合は true, そうでなければ false
  */
 bool cyw43_arch_gpio_get(uint wl_gpio);
 

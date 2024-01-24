@@ -1,28 +1,51 @@
 # Raspberry Pi Pico SDK
 
-The Raspberry Pi Pico SDK (Software Development Kit), henceforth SDK, provides the headers, libraries and build system necessary to write programs for RP2040-based devices such as the Raspberry Pi Pico in C, C++ or assembly language. The SDK is designed to provide an API (Application Programming Interface) and programming environment that is familiar both to non-embedded C developers and embedded C developers alike.
+Raspberry Pi Pico SDK (Software Development Kit)は、Raspberry Pi Picoなどの
+RP2040ベースのデバイス用のプログラムをC、C++、またはアセンブリ言語で記述する
+ために必要なヘッダー、ライブラリ、ビルドシステムを提供します。SDKは、非組込み
+C言語の開発者にも、組み込みC言語の開発者にも馴染みのあるAPI (Application
+Programming Interface) とプログラミング環境を提供するように設計されています。
 
-A single program runs on the device at a time with a conventional `main()` method. Standard C/C++ libraries are supported along with APIs for accessing the RP2040’s hardware, including DMA, IRQs, and the wide variety of fixed-function peripherals and PIO (Programmable IO).
+おなじみの `main()` メソッドによりデバイス上で一度に1つのプログラムが実行されます。
+DMAやIRQ、多様な固定機能ペリフェラルやPIO（Programmable IO）など、RP2040のハードウェアに
+アクセスするためのAPIとともに標準的なC/C++ライブラリがサポートされています。
 
-Additionally the SDK provides higher-level libraries for dealing with timers, USB, synchronization and multi-core programming, along with additional high-level functionality built using PIO, such as audio. The SDK can be used to build anything from simple applications, or full-fledged runtime environments such as MicroPython, to low-level software such as the RP2040’s on-chip bootrom itself.
+SDKはさらにタイマーやUSB、同期、マルチコア・プログラミングを扱うための高水準ライブラリを
+提供するとともにオーディオなどのPIOを使用して構築された高水準な機能も追加しています。
+SDKは、シンプルなアプリケーションから、MicroPythonのような本格的なランタイム環境、
+RP2040のオンチップブートロムのような低レベルのソフトウェアまで、あらゆるものの構築に
+使用できます。
 
-This documentation is generated from the SDK source tree using Doxygen. It provides basic information on the APIs used for each library, but does not provide usage information. Please refer to the Databooks for usage and more technical information.
+このドキュメントはDoxygenを使用してSDKソースツリーから生成されています。各ライブラリで
+使用されているAPIに関する基本的な情報を提供していますが、使用方法に関する情報は提供して
+いません。使用方法やより技術的な情報についてはデータブックを参照してください。
 
-## SDK Design
+## SDKのデザイン
 
-The RP2040 is a powerful chip, however it is an embedded environment, so both RAM and program space are at premium. Additionally the trade-offs between performance and other factors (e.g. edge-case error handling, runtime vs compile-time configuration) are necessarily much more visible to the developer than they might be on other higher-level platforms.
+RP2040は強力なチップですが、組み込み環境であるため、RAMとプログラム空間の双方に制約があります。
+さらに、パフォーマンスとその他の要素（エッジケースのエラー処理、ランタイムとコンパイル時
+構成など）のトレードオフが他の高水準なプラットフォームよりも開発者にはるかに見えやすいものに
+なっています。
 
-The intention within the SDK has been for features to just work out of the box, with sensible defaults, but also to give the developer as much control and power as possible (if they want it) to fine-tune every aspect of the application they are building and the libraries used.
+SDKの意図するところは、箱から出してすぐに機能し、適切なデフォルト値が設定されていることですが、
+開発者が望むのであれば、ビルドするアプリケーションや使用するライブラリのあらゆる面を微調整
+できるよう可能な限りのコントロールとパワーを提供することです。
 
-## The Build System
+## ビルドシステム
 
-The SDK uses CMake to manage the build. CMake is widely supported by IDEs (Integrated Development Environments), and allows a simple specification of the build (via `CMakeLists.txt` files), from which CMake can generate a build system (for use by `make`, `ninja` or other build tools) customized for the platform and by any configuration variables the developer chooses.
+SDKはCMakeを使ってビルドを管理します。CMakeはIDE（統合開発環境）で広くサポートされており、
+（`CMakeLists.txt`ファイルを通じて）ビルドを簡単に指定することができます。CMakeはこの指定から
+プラットフォームと開発者が選択した任意の構成変数によってカスタマイズされた（`make`、`ninja`、
+または他のビルドツールで使用する）ビルドシステムを生成することができます。
 
-Apart from being a widely-used build system for C/C++ development, CMake is fundamental to the way the SDK is structured, and how applications are configured and built.
+CMakeは、C/C++の開発で広く使われているビルドシステムであるだけでなく、SDKの構築、
+アプリケーションの構成やビルド方法の基本となっています。
 
-The SDK builds an executable which is bare-metal, i.e. it includes the entirety of the code needed to run on the device (other than floating-point and other optimized code contained in the bootrom within the RP2040).
+SDKは、ベアメタル、すなわちデバイス上で実行するために必要なすべてのコード（RP2040の
+bootromに含まれている浮動小数点やその他の最適化されたコードを除く）を含む実行可能
+ファイルを構築します。
 
-## Examples
+## 例
 
-This SDK documentation contains a number of example code fragments. An index of these examples can be found [here](@ref examples_page). These examples, and any other source code included in this documentation, is Copyright &copy; 2020 Raspberry Pi Ltd and licensed under the [3-Clause BSD](https://opensource.org/licenses/BSD-3-Clause) license.
-
+このSDKドキュメントには多くのコード例の断片が含まれています。これらの例の索引は [ここ](@ref examples_page) にあります。これらのサンプルとこのドキュメントに含まれるその他のソースコードの
+著作権は &copy; 2020 Raspberry Pi Ltd  に帰属し、[3-Clause BSD](https://opensource.org/licenses/BSD-3-Clause)ライセンスでライセンスされています。

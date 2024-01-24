@@ -15,11 +15,11 @@ extern "C" {
 #endif
 
 /**
- * \brief Initialize and return the singleton BTstack run loop instance that integrates with the async_context API
+ * \brief async_context APIと統合するシングルトンBTstack実行ループインスタンスを初期化して返す
  * \ingroup pico_btstack
  *
- * \param context the async_context instance that provides the abstraction for handling asynchronous work.
- * \return the BTstack run loop instance
+ * \param context 非同期workの処理のための抽象化を提供するasync_contextインスタンス.
+ * \return BTstack実行ループインスタンス
  */
 const btstack_run_loop_t *btstack_run_loop_async_context_get_instance(async_context_t *context);
 

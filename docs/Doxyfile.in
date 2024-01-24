@@ -39,6 +39,7 @@ ALIASES += end=@internal
 
 OUTPUT_DIRECTORY       = @DOXY_OUTPUT_DIR@
 INPUT                  = @PROJECT_SOURCE_DIR@/docs/index.h @DOXY_INPUT_DIRS@ @PROJECT_SOURCE_DIR@/docs/
+OUTPUT_LANGUAGE        = Japanese
 
 #EXCLUDE               = @DOXY_EXCLUDE_DIRS@ @PROJECT_SOURCE_DIR@/src/rp2040
 EXCLUDE                = @DOXY_EXCLUDE_DIRS@
