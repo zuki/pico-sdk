@@ -3,14 +3,15 @@
 RP2040とRaspberry Pi Picoボードに関する完全なドキュメントは以下のリンクで
 見ることができます。
 
- - [RP2040データシート](https://rptl.io/rp2040-datasheet)
- - [Raspberry Pi Picoデータシート](https://rptl.io/pico-datasheet)
- - [Raspberry Pi Pico Wデータシート](https://rptl.io/picow-datasheet)
- - [RP2040によるハードウェア設計](https://rptl.io/rp2040-design)
+ - [RP2040 Datasheet](https://rptl.io/rp2040-datasheet)
+ - [Raspberry Pi Pico Datasheet](https://rptl.io/pico-datasheet)
+ - [Raspberry Pi Pico W Datasheet](https://rptl.io/picow-datasheet)
+ - [Hardware design with RP2040](https://rptl.io/rp2040-design)
  - [Raspberry Pi Pico C/C++ SDK](https://rptl.io/pico-c-sdk)
  - [Raspberry Pi Pico Python SDK](https://rptl.io/pico-micropython)
- - [Raspberry Pi Picoを始めよう](https://rptl.io/pico-get-started)
- - [Raspberry Pi Pico Wでインターネットに接続](https://rptl.io/picow-connect)
+ - [Getting started with Raspberry Pi Pico](https://rptl.io/pico-get-started)
+ - [Raspberry Pi Picoをセットアップしよう](https://datasheets.raspberrypi.com/pico/getting-started-with-pico-JP.pdf)
+ - [Connecting to the Internet with Raspberry Pi Pico W](https://rptl.io/picow-connect)
 
 ### Webリンク
 
