@@ -345,20 +345,21 @@ static inline bool async_context_remove_at_time_worker(async_context_t *context,
 }
 
 /*!
- * \brief Add a "when pending" worker to a context
+ * \brief コンテキストに"when pending"ワーカーを追加する
  * \ingroup pico_async_context
  *
- * An "when pending" worker will run when it is pending (can be set via \ref async_context_set_work_pending), and
- * is NOT automatically removed when it runs.
+ * "when pending"ワーカーは保留中に実行され（ \ref async_context_set_work_pending で設定できます）、
+ * 実行されても自動的には削除されません。
  *
- * The time to fire is specified by a delay via the ms parameter
+ * 発火時間はmsパラメータ経由でdelayにより指定されます。
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
- * worker method called by the async_context or from any other non-IRQ context.
+ * \note （async_context_pollではない) ロックを提供するasync_context の場合、
+ * この関数はスレッドセーフです。async_contextから呼び出された任意のワーカー関数や
+ * その他の非IRQコンテキストから呼び出すことができます。
  *
- * \param context the async_context
- * \param worker the "when pending" worker to add
- * \return true if the worker was added, false if the worker was already present.
+ * \param context async_context
+ * \param worker 追加する "when pending" ワーカー
+ * \return ワーカーが追加されたら true, ワーカーがすでに存在したら false.
  */
 static inline bool async_context_add_when_pending_worker(async_context_t *context, async_when_pending_worker_t *worker) {
     return context->type->add_when_pending_worker(context, worker);
