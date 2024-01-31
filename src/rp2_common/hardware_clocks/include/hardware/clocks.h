@@ -17,37 +17,41 @@ extern "C" {
 /** \file hardware/clocks.h
  *  \defgroup hardware_clocks hardware_clocks
  *
- * Clock Management API
+ * \brief クロック管理API
  *
- * This API provides a high level interface to the clock functions.
+ * このAPIはクロック機能への高水準インタフェースを提供します。
  *
- * The clocks block provides independent clocks to on-chip and external components. It takes inputs from a variety of clock
- * sources allowing the user to trade off performance against cost, board area and power consumption. From these sources
- * it uses multiple clock generators to provide the required clocks. This architecture allows the user flexibility to start and
- * stop clocks independently and to vary some clock frequencies whilst maintaining others at their optimum frequencies
+ * クロックブロックはオンチップコンポーネントおよび外部コンポーネントに
+ * 独立したクロックを提供します。クロックブロックは様々なクロックソースからの入力を受け、
+ * ユーザは性能とコスト、ボード面積、消費電力をトレードオフすることができます。クロックブロックは
+ * これらのソースから複数のクロックジェネレータを使用して必要なクロックを供給します。このアーキ
+ * テクチャにより、ユーザはクロックを独立に開始・停止したり、一部のクロック周波数は変化させ、
+ * 他のクロック周波数は最適な周波数を保持するといった柔軟性を得ることができます。
  *
- * Please refer to the datasheet for more details on the RP2040 clocks.
+ * RP2040のクロックの詳細についてはデータシートを参照してください。
  *
- * The clock source depends on which clock you are attempting to configure. The first table below shows main clock sources. If
- * you are not setting the Reference clock or the System clock, or you are specifying that one of those two will be using an auxiliary
- * clock source, then you will need to use one of the entries from the subsequent tables.
+ * クロックソースはどのクロックを構成するのかにより異なります。以下の1つ目の表は主なクロック
+ * ソースを示しています。リファレンスクロックかシステムクロックを設定していない場合、または、
+ * そのどちらかに補助クロックソースを使用するように指定している場合は、2つ目の表のエントリの
+ * いずれかを使用する必要があります。
  *
- * **Main Clock Sources**
+ * **主なクロックソース**
  *
- * Source | Reference Clock | System Clock
+ * ソース | 基準クロック | システムクロック
  * -------|-----------------|---------
  * ROSC      | CLOCKS_CLK_REF_CTRL_SRC_VALUE_ROSC_CLKSRC_PH     |  |
  * Auxiliary | CLOCKS_CLK_REF_CTRL_SRC_VALUE_CLKSRC_CLK_REF_AUX | CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX
  * XOSC      | CLOCKS_CLK_REF_CTRL_SRC_VALUE_XOSC_CLKSRC        |  |
  * Reference |                                                  | CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLK_REF
  *
- * **Auxiliary Clock Sources**
+ * **補助クロックソース**
  *
- * The auxiliary clock sources available for use in the configure function depend on which clock is being configured. The following table
- * describes the available values that can be used. Note that for clk_gpout[x], x can be 0-3.
+ * 構成関数で使用できる補助クロックスソースはどのクロックを構成するのかにより異なります。
+ * 次の表は使用可能な値を示しています。clk_gpout[x]のxは0-3のいずれかであることに注意して
+ * ください。
  *
  *
- * Aux Source | clk_gpout[x] | clk_ref | clk_sys
+ * 補助ソース | clk_gpout[x] | clk_ref | clk_sys
  * -----------|------------|---------|--------
  * System PLL | CLOCKS_CLK_GPOUTx_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS |                                                | CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS
  * GPIO in 0  | CLOCKS_CLK_GPOUTx_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0   | CLOCKS_CLK_REF_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0  | CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0
@@ -61,7 +65,7 @@ extern "C" {
  * RTC Clock  | CLOCKS_CLK_GPOUTx_CTRL_AUXSRC_VALUE_CLK_RTC        | | |
  * Ref clock  | CLOCKS_CLK_GPOUTx_CTRL_AUXSRC_VALUE_CLK_REF        | | |
  *
- * Aux Source |  clk_peri | clk_usb | clk_adc
+ * 補助ソース |  clk_peri | clk_usb | clk_adc
  * -----------|-----------|---------|--------
  * System PLL | CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS    | CLOCKS_CLK_USB_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS | CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS
  * GPIO in 0  | CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0      | CLOCKS_CLK_USB_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0   | CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0
@@ -71,7 +75,7 @@ extern "C" {
  * XOSC       | CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_XOSC_CLKSRC       | CLOCKS_CLK_USB_CTRL_AUXSRC_VALUE_XOSC_CLKSRC    | CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_XOSC_CLKSRC
  * System clock | CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS         | | |
  *
- * Aux Source | clk_rtc
+ * 補助ソース | clk_rtc
  * -----------|----------
  * System PLL |  CLOCKS_CLK_RTC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS
  * GPIO in 0  |  CLOCKS_CLK_RTC_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0
@@ -165,16 +169,17 @@ extern "C" {
  */
 void clocks_init(void);
 
-/*! \brief Configure the specified clock
+/*! \brief 指定したクロックを構成する
  *  \ingroup hardware_clocks
  *
+ * クロックソースとして取り得る値については説明中の表を参照のこと。
  * See the tables in the description for details on the possible values for clock sources.
  *
- * \param clk_index The clock to configure
- * \param src The main clock source, can be 0.
- * \param auxsrc The auxiliary clock source, which depends on which clock is being set. Can be 0
- * \param src_freq Frequency of the input clock source
- * \param freq Requested frequency
+ * \param clk_index 構成するクロック
+ * \param src 主たるクロックスソース, 0 でもOK.
+ * \param auxsrc 補助クロックソース, 設定するクロックによる, 0 でもOK
+ * \param src_freq 入力クロックソースの周波数
+ * \param freq 要求周波数
  */
 bool clock_configure(enum clock_index clk_index, uint32_t src, uint32_t auxsrc, uint32_t src_freq, uint32_t freq);
 

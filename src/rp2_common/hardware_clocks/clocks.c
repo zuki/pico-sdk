@@ -53,42 +53,43 @@ bool clock_configure(enum clock_index clk_index, uint32_t src, uint32_t auxsrc, 
     if (freq > src_freq)
         return false;
 
-    // Div register is 24.8 int.frac divider so multiply by 2^8 (left shift by 8)
+    // Divレジスタの値int.fracが24.8の除数なので 2^8倍する（8だけ左シフト）
+    // src_freq == freq の場合, [31:8] = 1, すなわち、1倍となる
     div = (uint32_t) (((uint64_t) src_freq << CLOCKS_CLK_GPOUT0_DIV_INT_LSB) / freq);
 
     clock_hw_t *clock = &clocks_hw->clk[clk_index];
 
-    // If increasing divisor, set divisor before source. Otherwise set source
-    // before divisor. This avoids a momentary overspeed when e.g. switching
-    // to a faster source and increasing divisor to compensate.
+    // 除数が増加する場合は、ソースの前に除数を設定する。そうでない場合は除数の前にソースを設定する。
+    // これにより、たとえば、より速いソースに切り替え、それを補うために除数を増加させる際に発生する
+    // 一瞬の速度超過を避けることができる。
     if (div > clock->div)
         clock->div = div;
 
-    // If switching a glitchless slice (ref or sys) to an aux source, switch
-    // away from aux *first* to avoid passing glitches when changing aux mux.
-    // Assume (!!!) glitchless source 0 is no faster than the aux source.
+    // グリッチのないスライス（ref または sys）をauxのソースに切り替える場合、
+    // aux muxを変更する際にグリッチを渡さないように*まず* auxから切り替える。
+    // グリッチレスソース0はauxソースより速くないと仮定する(!!!)。
     if (has_glitchless_mux(clk_index) && src == CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX) {
         hw_clear_bits(&clock->ctrl, CLOCKS_CLK_REF_CTRL_SRC_BITS);
         while (!(clock->selected & 1u))
             tight_loop_contents();
     }
-    // If no glitchless mux, cleanly stop the clock to avoid glitches
-    // propagating when changing aux mux. Note it would be a really bad idea
-    // to do this on one of the glitchless clocks (clk_sys, clk_ref).
+    // グリッチのないmuxがない場合、aux muxを変更する際にグリッチが伝搬しないようにするため、
+    // クロックをきれいに止める。グリッチのないクロック(clk_sys, clk_ref)にこれを行うのは本当に
+    // 悪い考えであることに注意すること。
     else {
-        // Disable clock. On clk_ref and clk_sys this does nothing,
-        // all other clocks have the ENABLE bit in the same position.
+        // クロックを無効にする。clk_refとclk_sysではこれは何もしない。
+        // 他のすべてのクロックは同じ位置にENABLEビットを持っている。
         hw_clear_bits(&clock->ctrl, CLOCKS_CLK_GPOUT0_CTRL_ENABLE_BITS);
         if (configured_freq[clk_index] > 0) {
-            // Delay for 3 cycles of the target clock, for ENABLE propagation.
-            // Note XOSC_COUNT is not helpful here because XOSC is not
-            // necessarily running, nor is timer...:
+            // ENABLEを伝搬させるためにターゲットクロックの3サイクル分だけ遅延させる。
+            // XOSC_COUNTはここでは役に立たない。なぜなら、XOSCもtimerも必ずしも動作
+            // しているわけではないからである。
             uint delay_cyc = configured_freq[clk_sys] / configured_freq[clk_index] + 1;
             busy_wait_at_least_cycles(delay_cyc * 3);
         }
     }
 
-    // Set aux mux first, and then glitchless mux if this clock has one
+    // まず。aux muxを設定し、次に、このクロックにあればグリッチのないauxを設定する。
     hw_write_masked(&clock->ctrl,
         (auxsrc << CLOCKS_CLK_SYS_CTRL_AUXSRC_LSB),
         CLOCKS_CLK_SYS_CTRL_AUXSRC_BITS
@@ -119,7 +120,7 @@ bool clock_configure(enum clock_index clk_index, uint32_t src, uint32_t auxsrc, 
 /// \end::clock_configure[]
 
 void clocks_init(void) {
-    // Start tick in watchdog, the argument is in 'cycles per microsecond' i.e. MHz
+    // wkatchdogのチックを開始する。引数は"マイクロ秒あたりのサイクル数", つまり、MHz
     watchdog_start_tick(XOSC_KHZ / KHZ);
 
     // Everything is 48MHz on FPGA apart from RTC. Otherwise set to 0 and will be set in clock configure
@@ -131,13 +132,13 @@ void clocks_init(void) {
         return;
     }
 
-    // Disable resus that may be enabled from previous software
+    // 先行するソフトウェで有効にしている可能性があるのでressuを無垢にする
     clocks_hw->resus.ctrl = 0;
 
-    // Enable the xosc
+    // xoscを有効にする
     xosc_init();
 
-    // Before we touch PLLs, switch sys and ref cleanly away from their aux sources.
+    // PLLを触る前にsysとrefをauxソースから切り離す
     hw_clear_bits(&clocks_hw->clk[clk_sys].ctrl, CLOCKS_CLK_SYS_CTRL_SRC_BITS);
     while (clocks_hw->clk[clk_sys].selected != 0x1)
         tight_loop_contents();
@@ -150,7 +151,7 @@ void clocks_init(void) {
     pll_init(pll_usb, PLL_COMMON_REFDIV, PLL_USB_VCO_FREQ_KHZ * KHZ, PLL_USB_POSTDIV1, PLL_USB_POSTDIV2);
     /// \end::pll_init[]
 
-    // Configure clocks
+    // クロックの構成
     // CLK_REF = XOSC (usually) 12MHz / 1 = 12MHz
     clock_configure(clk_ref,
                     CLOCKS_CLK_REF_CTRL_SRC_VALUE_XOSC_CLKSRC,
