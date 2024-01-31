@@ -10,12 +10,14 @@
 #include "pico/stdio.h"
 #include "hardware/uart.h"
 
-/** \brief Support for stdin/stdout using UART
+/** \brief UARTを使用したstdin_stdoutをサポートする
  *  \defgroup pico_stdio_uart pico_stdio_uart
  *  \ingroup pico_stdio
  *
- *  Linking this library or calling `pico_enable_stdio_uart(TARGET ENABLED)` in the CMake (which
- *  achieves the same thing) will add UART to the drivers used for standard input/output
+ *  このライブラリをリンクするか、CMakeで
+ * `pico_enable_stdio_uart(TARGET ENABLED)` を呼び出すと
+ * （同じことです）、標準入出力に使用されるドライバにUARTが
+ * 追加されます。
  */
 
 // PICO_CONFIG: PICO_STDIO_UART_DEFAULT_CRLF, Default state of CR/LF translation for UART output, type=bool, default=PICO_STDIO_DEFAULT_CRLF, group=pico_stdio_uart
@@ -34,37 +36,40 @@ extern "C" {
 
 extern stdio_driver_t stdio_uart;
 
-/*! \brief Explicitly initialize stdin/stdout over UART and add it to the current set of stdin/stdout drivers
+/*! \brief UART経由のstdin/stdoutを明示的に初期化し、現在のstdin/stdoutドライバセットに追加する
  *  \ingroup pico_stdio_uart
  *
- * This method sets up PICO_DEFAULT_UART_TX_PIN for UART output (if defined), PICO_DEFAULT_UART_RX_PIN for input (if defined)
- * and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE.
+ * この関数は（定義されていれば）UART出力用にPICO_DEFAULT_UART_TX_PIN を、
+ * （定義されていれば）UART入力用に PICO_DEFAULT_UART_RX_PIN を
+ * 設定し、ボーレートを PICO_DEFAULT_UART_BAUD_RATE に構成します。
  *
- * \note this method is automatically called by \ref stdio_init_all() if `pico_stdio_uart` is included in the build
+ * \note この関数はビルド時に `pico_stdio_uart` が含まれている場合
+ * \ref stdio_init_all() により自動的に呼び出されます。
  */
 void stdio_uart_init(void);
 
-/*! \brief Explicitly initialize stdout only (no stdin) over UART and add it to the current set of stdout drivers
+/*! \brief UART経由のstdoutだけ（stdinはしない）を明示的に初期化し、現在のstdoutドライバセットに追加する
  *  \ingroup pico_stdio_uart
  *
- * This method sets up PICO_DEFAULT_UART_TX_PIN for UART output (if defined) , and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE
+ * この関数は（定義されていれば）UART出力用に PICO_DEFAULT_UART_TX_PIN を
+ * 設定し、ボーレートを PICO_DEFAULT_UART_BAUD_RATE に構成します。
  */
 void stdout_uart_init(void);
 
-/*! \brief Explicitly initialize stdin only (no stdout) over UART and add it to the current set of stdin drivers
+/*! \brief UART経由のstdinだけ（stdoutはしない）を明示的に初期化し、現在のstdinドライバセットに追加する
  *  \ingroup pico_stdio_uart
  *
- * This method sets up PICO_DEFAULT_UART_RX_PIN for UART input (if defined) , and configures the baud rate as PICO_DEFAULT_UART_BAUD_RATE
+ * この関数は（定義されていれば）UART入力用に PICO_DEFAULT_UART_RX_PIN を
+ * 設定し、ボーレートを PICO_DEFAULT_UART_BAUD_RATE に構成します。
  */
 void stdin_uart_init(void);
 
-/*! \brief Perform custom initialization initialize stdin/stdout over UART and add it to the current set of stdin/stdout drivers
+/*! \brief どくじの設定でUART経由のstdin/stdoutを初期化し、現在のstdin/stdoutドライバセットに追加する
  *  \ingroup pico_stdio_uart
  *
- * \param uart the uart instance to use, \ref uart0 or \ref uart1
- * \param baud_rate the baud rate in Hz
- * \param tx_pin the UART pin to use for stdout (or -1 for no stdout)
- * \param rx_pin the UART pin to use for stdin (or -1 for no stdin)
+ * \param uart 使用するuartインスタンス, \ref uart0 または \ref uart1
+ * \param baud_rate Hz単位のボーレート
+ * \param tx_pin stdout用に使用するUARTピン（stdoutを使用しない場合は -1） * \param rx_pin stdin用に使用するUARTピン（stdinを使用しない場合は -1）
  */
 void stdio_uart_init_full(uart_inst_t *uart, uint baud_rate, int tx_pin, int rx_pin);
 

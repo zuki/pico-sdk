@@ -9,9 +9,9 @@
 
 /** \file stdio.h
 *  \defgroup pico_stdio pico_stdio
-* Customized stdio support allowing for input and output from UART, USB, semi-hosting etc.
+* カスタマイズされたstdioサポートはUART、USB、セミホストなどからの入出力を可能にする.
 *
-* Note the API for adding additional input output devices is not yet considered stable
+* \note 入力出力デバイスを追加するためのAPIはまだ安定したものとはみなされていません。
 */
 
 #include "pico.h"
@@ -48,77 +48,80 @@ extern "C" {
 
 typedef struct stdio_driver stdio_driver_t;
 
-/*! \brief Initialize all of the present standard stdio types that are linked into the binary.
+/*! \brief 現在バイナリにリンクされているすべての標準stdio型を初期化する.
  * \ingroup pico_stdio
  *
- * Call this method once you have set up your clocks to enable the stdio support for UART, USB
- * and semihosting based on the presence of the respective libraries in the binary.
+ * クロックを設定したら、バイナリ内の各ライブラリの存在に基づいてUART、USB、
+ * semihostingのstdioサポートを有効にするためにこの関数を呼び出します。
  *
- * When stdio_usb is configured, this method can be optionally made to block, waiting for a connection
- * via the variables specified in \ref stdio_usb_init (i.e. \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
+ * stdio_usb が構成されている場合 \ref stdio_usb_init で指定した変数経由の
+ * 接続を待機してオプションでこの関数をブロックするようにすることができます
+ * （すなわち \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS ）。
  *
- * \return true if at least one output was successfully initialized, false otherwise.
+ * \return outputを少なくとも¹つ初期化に成功したら true, そうでなければ false.
  * \see stdio_uart, stdio_usb, stdio_semihosting
  */
 bool stdio_init_all(void);
 
-/*! \brief Flushes any buffered output.
+/*! \brief バッファされた出力をフラッシュする.
  * \ingroup pico_stdio
  */
 void stdio_flush(void);
 
-/*! \brief Return a character from stdin if there is one available within a timeout
+/*! \brief タイムアウト時間内にstdinに入力があったら一文字返す.
  * \ingroup pico_stdio
  *
- * \param timeout_us the timeout in microseconds, or 0 to not wait for a character if none available.
- * \return the character from 0-255 or PICO_ERROR_TIMEOUT if timeout occurs
+ * \param timeout_us マイクロ秒単位のタイムアウト, 文字入力がなかったら待たないにする場合は 0.
+ * \return 0-255で表される文字、タイムアウトとなった場合は PICO_ERROR_TIMEOUT
  */
 int getchar_timeout_us(uint32_t timeout_us);
 
-/*! \brief Adds or removes a driver from the list of active drivers used for input/output
+/*! \brief 入出力用に使用するアクティブなドライバリストに/からドライバを追加/削除する
  * \ingroup pico_stdio
  *
- * \note this method should always be called on an initialized driver and is not re-entrant
- * \param driver the driver
- * \param enabled true to add, false to remove
+ * \note この関数は常に初期化されたドライバから呼び出す必要があり、リエントラントではありません。
+ * \param driver ドリア場
+ * \param enabled 追加する場合は true, 削除する場合は false
  */
 void stdio_set_driver_enabled(stdio_driver_t *driver, bool enabled);
 
-/*! \brief Control limiting of output to a single driver
+/*! \brief 一つのドライバへの出力制限を制御する
  * \ingroup pico_stdio
  *
- * \note this method should always be called on an initialized driver
+ * \note この関数は常に初期化されたドライバから呼び出す必要があります。
  *
- * \param driver if non-null then output only that driver will be used for input/output (assuming it is in the list of enabled drivers).
- *               if NULL then all enabled drivers will be used
+ * \param driver 非NULLの場合、そのドライバだけが入出力に使用されます（有効なドライバリストに
+ * あると仮定します）。
+ *               NULLの場合、すべての有効なドライバが使用されます。
  */
 void stdio_filter_driver(stdio_driver_t *driver);
 
-/*! \brief control conversion of line feeds to carriage return on transmissions
+/*! \brief 転送時に改行コードから復帰コードへの変換を制御する.
  * \ingroup pico_stdio
  *
- * \note this method should always be called on an initialized driver
+ * \note この関数は常に初期化されたドライバから呼び出す必要があります。
  *
- * \param driver the driver
- * \param translate If true, convert line feeds to carriage return on transmissions
+ * \param driver ドライバ
+ * \param translate trueの場合, 転送時に改行コードを復帰コードに変換する
  */
 void stdio_set_translate_crlf(stdio_driver_t *driver, bool translate);
 
-/*! \brief putchar variant that skips any CR/LF conversion if enabled
+/*! \brief 有効なすべてのCR/LF変換をスキップするputchar
  * \ingroup pico_stdio
  */
 int putchar_raw(int c);
 
-/*! \brief puts variant that skips any CR/LF conversion if enabled
+/*! \brief 有効なすべてのCR/LF変換をスキップするputs
  * \ingroup pico_stdio
  */
 int puts_raw(const char *s);
 
-/*! \brief get notified when there are input characters available
+/*! \brief 文字が入力されたら通知する関数を登録する
  * \ingroup pico_stdio
  *
- * \param fn Callback function to be called when characters are available. Pass NULL to cancel any existing callback
- * \param param Pointer to pass to the callback
+ * \param fn 文字が入力された場合に呼び出されるコールバック関数. 既存のコールバックを
+ * キャンセルする場合は NULL を渡す
+ * \param param コールバックに渡すためのポインタ
  */
 void stdio_set_chars_available_callback(void (*fn)(void*), void *param);
 

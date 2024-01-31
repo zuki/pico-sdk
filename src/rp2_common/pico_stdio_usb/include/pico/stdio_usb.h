@@ -9,18 +9,25 @@
 
 #include "pico/stdio.h"
 
-/** \brief Support for stdin/stdout over USB serial (CDC)
+/** \brief USBシリアル (CDC) 経由のstdin/stdoutをサポートする
  *  \defgroup pico_stdio_usb pico_stdio_usb
  *  \ingroup pico_stdio
  *
- *  Linking this library or calling `pico_enable_stdio_usb(TARGET ENABLED)` in the CMake (which
- *  achieves the same thing) will add USB CDC to the drivers used for standard input/output
+ *  このライブラリをリンクするか、CMakeで
+ * `pico_enable_stdio_usb(TARGET ENABLED)` を呼び出すと
+ * （同じことです）、標準入出力に使用されるドライバにUSB CDCが
+ * 追加されます。
  *
- *  Note this library is a developer convenience. It is not applicable in all cases; for one it takes full control of the USB device precluding your
- *  use of the USB in device or host mode. For this reason, this library will automatically disengage if you try to using it alongside \ref tinyusb_device or
- *  \ref tinyusb_host. It also takes control of a lower level IRQ and sets up a periodic background task.
+ *  \note このライブラリは開発者に便宜を与えるためのものです。
+ * すべてのケースに適用できるわけではありません。一つはUSBデバイスを
+ * 完全に制御してしまうため、デバイスモードとホストモードの
+ * 両モードでUSBを使用することができません。このため、このライブラリは
+ * \ref tinyusb_device や \ref tinyusb_host と一緒に使おうとすると
+ * 自動的に解除されます。また、低水準IRQを制御し、定期的なバック
+ * グラウンドタスクを設定します。
  *
- *  This library also includes (by default) functionality to enable the RP2040 to be reset over the USB interface.
+ *  このライブラリにはRP2040をUSBインタフェース経由でリセットする
+ * 機能も（デフォルトで）含まれています。
  */
 
 // PICO_CONFIG: PICO_STDIO_USB_DEFAULT_CRLF, Default state of CR/LF translation for USB output, type=bool, default=PICO_STDIO_DEFAULT_CRLF, group=pico_stdio_usb
@@ -118,21 +125,22 @@ extern "C" {
 
 extern stdio_driver_t stdio_usb;
 
-/*! \brief Explicitly initialize USB stdio and add it to the current set of stdin drivers
+/*! \brief USB stdioを明示的に初期化し、現在のstdinドライバセットに追加する
  *  \ingroup pico_stdio_usb
  *
- *  \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS can be set to cause this method to wait for a CDC connection
- *  from the host before returning, which is useful if you don't want any initial stdout output to be discarded
- *  before the connection is established.
+ *  \ref PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MSを設定すると
+ * この関数はホストからのCDC接続を待ってから復帰するようになります。
+ * これは接続が確立される前に初期標準出力が破棄されたくない場合に
+ * 便利です。
  *
- *  \return true if the USB CDC was initialized, false if an error occurred
+ *  \return true if the USB CDCが初期化されたら true, エラーが発生したら false
  */
 bool stdio_usb_init(void);
 
-/*! \brief Check if there is an active stdio CDC connection to a host
+/*! \brief ホストへのアクティブなstdio CDC 接続があるかチェックする
  *  \ingroup pico_stdio_usb
  *
- *  \return true if stdio is connected over CDC
+ *  \return CDC経由でstdioが接続されている場合は true
  */
 bool stdio_usb_connected(void);
 #ifdef __cplusplus

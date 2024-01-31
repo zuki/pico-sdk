@@ -9,12 +9,14 @@
 
 #include "pico/stdio.h"
 
-/** \brief Experimental support for stdout using RAM semihosting
+/** \brief RAMセミホスティングを使用したstdoutの実験的サポート
  *  \defgroup pico_stdio_semihosting pico_stdio_semihosting
  *  \ingroup pico_stdio
  *
- *  Linking this library or calling `pico_enable_stdio_semihosting(TARGET ENABLED)` in the CMake (which
- *  achieves the same thing) will add semihosting to the drivers used for standard output
+ *  このライブラリをリンクするか、CMakeで
+ * `pico_enable_stdio_semihosting(TARGET ENABLED)` を呼び出すと
+ * （同じことです）、標準出力に使用されるドライバに
+ * セミホスティングが追加されます。
  */
 
 // PICO_CONFIG: PICO_STDIO_SEMIHOSTING_DEFAULT_CRLF, Default state of CR/LF translation for semihosting output, type=bool, default=PICO_STDIO_DEFAULT_CRLF, group=pico_stdio_semihosting
@@ -28,10 +30,11 @@ extern "C" {
 
 extern stdio_driver_t stdio_semihosting;
 
-/*! \brief Explicitly initialize stdout over semihosting and add it to the current set of stdout targets
+/*! \brief セミホスティング経由のstdoutを明示的に初期化し、現在のstdoutターゲットセットに追加する
  *  \ingroup pico_stdio_semihosting
  *
- * \note this method is automatically called by \ref stdio_init_all() if `pico_stdio_semihosting` is included in the build
+ * \note この関数はビルド時に `pico_stdio_semihosting` が含まれている場合
+ * \ref stdio_init_all() により自動的に呼び出されます。
  */
 void stdio_semihosting_init(void);
 
