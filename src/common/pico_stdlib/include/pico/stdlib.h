@@ -20,11 +20,12 @@ extern "C" {
 /** \file stdlib.h
  *  \defgroup pico_stdlib pico_stdlib
  *
- * Aggregation of a core subset of Raspberry Pi Pico SDK libraries used by most executables along with some additional
- * utility methods. Including pico_stdlib gives you everything you need to get a basic program running
- * which prints to stdout or flashes a LED
+ * ほとんどの実行ファイルで使用されるRaspberry Pi Pico SDKライブラリのコアサブセットと
+ * いくつかの追加ユーティリティ関数をまとめたものです。pico_stdlibを追加することにより
+ * 標準出力に出力したりLEDを点滅させたりする基本的なプログラムを実行するのに必要なものが
+ * すべて揃います。
  *
- * This library aggregates:
+ * このライブラリは以下をまとめています:
  *   - @ref hardware_uart
  *   - @ref hardware_gpio
  *   - @ref pico_binary_info
@@ -35,9 +36,9 @@ extern "C" {
  *   - @ref pico_standard_link
  *   - @ref pico_util
  *
- * There are some basic default values used by these functions that will default to
- * usable values, however, they can be customised in a board definition header via
- * config.h or similar
+ * これらの関数で使用される基本的なデフォルト値は、デフォルトで適切な値に
+ * 設定されていますが　config.h などを介してボード定義ヘッダーでカスタマイズ
+ * することができます。
  */
 
 // Note PICO_STDIO_UART, PICO_STDIO_USB, PICO_STDIO_SEMIHOSTING are set by the
@@ -66,16 +67,16 @@ extern "C" {
 // PICO_CONFIG: PICO_DEFAULT_WS2812_PIN, Optionally define a pin that controls data to a WS2812 compatible LED on the board, group=pico_stdlib
 // PICO_CONFIG: PICO_DEFAULT_WS2812_POWER_PIN, Optionally define a pin that controls power to a WS2812 compatible LED on the board, group=pico_stdlib
 
-/*! \brief Set up the default UART and assign it to the default GPIOs
+/*! \brief デフォルトのUARTを設定し、デフォルトのGPIOに割り当てる
  *  \ingroup pico_stdlib
  *
- * By default this will use UART 0, with TX to pin GPIO 0,
- * RX to pin GPIO 1, and the baudrate to 115200
+ * デフォルトでは、UART 0を使用し, TXは GPIO 0 ピン,
+ * RXは GPIO 1 ピン, ボーレートは 115200 です。
  *
- * Calling this method also initializes stdin/stdout over UART if the
- * @ref pico_stdio_uart library is linked.
+ * この関数を呼び出すと @ref pico_stdio_uart  ライブラリがリンクされている場合
+ * UART経由のstdin/stdoutの初期化も行います。
  *
- * Defaults can be changed using configuration defines,
+ * デフォルトは次の構成適宜を使って変更することができます。
  *  PICO_DEFAULT_UART_INSTANCE,
  *  PICO_DEFAULT_UART_BAUD_RATE
  *  PICO_DEFAULT_UART_TX_PIN
@@ -83,45 +84,45 @@ extern "C" {
  */
 void setup_default_uart(void);
 
-/*! \brief Initialise the system clock to 48MHz
+/*! \brief システムクロックを 48MHz に初期化する
  *  \ingroup pico_stdlib
  *
- *  Set the system clock to 48MHz, and set the peripheral clock to match.
+ *  システムクロックを 48MHz に設定し、ペリフェラルクロックもそれに合わせます。
  */
 void set_sys_clock_48mhz(void);
 
-/*! \brief Initialise the system clock
+/*! \brief システムクロックを初期化する
  *  \ingroup pico_stdlib
  *
- * \param vco_freq The voltage controller oscillator frequency to be used by the SYS PLL
- * \param post_div1 The first post divider for the SYS PLL
- * \param post_div2 The second post divider for the SYS PLL.
+ * \param vco_freq SYS PLLで使用する電圧制御発振器周波数
+ * \param post_div1 SYS PLLの第一ポストディバイダ
+ * \param post_div2 SYS PLLの第二のポストディバイダ
  *
- * See the PLL documentation in the datasheet for details of driving the PLLs.
+ * PLL駆動の詳細についてはデータシートのPLLドキュメントを参照してください。
  */
 void set_sys_clock_pll(uint32_t vco_freq, uint post_div1, uint post_div2);
 
-/*! \brief Check if a given system clock frequency is valid/attainable
+/*! \brief 指定したシステムクロック周波数が有効か/達成可能かをチェックする
  *  \ingroup pico_stdlib
  *
- * \param freq_khz Requested frequency
- * \param vco_freq_out On success, the voltage controlled oscillator frequency to be used by the SYS PLL
- * \param post_div1_out On success, The first post divider for the SYS PLL
- * \param post_div2_out On success, The second post divider for the SYS PLL.
- * @return true if the frequency is possible and the output parameters have been written.
+ * \param freq_khz 指定周波数
+ * \param vco_freq_out 成功時にSYS PLLで使用される電圧制御発振器周波数
+ * \param post_div1_out 成功時のSYS PLLの第一ポストディバイダ
+ * \param post_div2_out 成功時のSYS PLLの第二ポストディバイダ
+ * @return 周波数が可能で出力パラメータが書き込まれた場合は true
  */
 bool check_sys_clock_khz(uint32_t freq_khz, uint *vco_freq_out, uint *post_div1_out, uint *post_div2_out);
 
-/*! \brief Attempt to set a system clock frequency in khz
+/*! \brief khz単位のシステムクロック周波数の設定を試みる
  *  \ingroup pico_stdlib
  *
- * Note that not all clock frequencies are possible; it is preferred that you
- * use src/rp2_common/hardware_clocks/scripts/vcocalc.py to calculate the parameters
- * for use with set_sys_clock_pll
+ * 必ずしもすべてのクロック周波数が可能でなないことに注意してください。
+ * set_sys_clock_pll で使用するパラメータ は src/rp2_common/hardware_clocks/scripts/vcocalc.py を
+ * 使用することが望ましいです。
  *
- * \param freq_khz Requested frequency
- * \param required if true then this function will assert if the frequency is not attainable.
- * \return true if the clock was configured
+ * \param freq_khz 指定周波数
+ * \param required true の場合、この関数は周波数が達成不可能な場合に assert する
+ * \return クロックが構成された場合は true
  */
 static inline bool set_sys_clock_khz(uint32_t freq_khz, bool required) {
     uint vco, postdiv1, postdiv2;
