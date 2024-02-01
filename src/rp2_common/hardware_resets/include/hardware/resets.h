@@ -13,17 +13,18 @@
 /** \file hardware/resets.h
  *  \defgroup hardware_resets hardware_resets
  *
- * Hardware Reset API
+ * \brief ハードウェアリセットAPI
  *
- * The reset controller allows software control of the resets to all of the peripherals that are not
- * critical to boot the processor in the RP2040.
+ * リセットコントローラはRP2040のプロセッサをブートするのに重要では
+ * ないすべてのペリフェラルのリセットをソフトウェアで制御することを
+ * 可能にします。
  *
  * \subsubsection reset_bitmask
  * \addtogroup hardware_resets
  *
- * Multiple blocks are referred to using a bitmask as follows:
+ * 複数のブロックが以下のビットマスクを用いて参照されます。
  *
- * Block to reset | Bit
+ * リセットするブロック | ビット
  * ---------------|----
  * USB | 24
  * UART 1 | 23
@@ -51,7 +52,7 @@
  * Bus Control | 1
  * ADC 0 | 0
  *
- * \subsection reset_example Example
+ * \subsection reset_example サンプルコード
  * \addtogroup hardware_resets
  * \include hello_reset.c
  */
@@ -62,28 +63,28 @@ extern "C" {
 
 /// \tag::reset_funcs[]
 
-/*! \brief Reset the specified HW blocks
+/*! \brief 指定したブロックをリセットする
  *  \ingroup hardware_resets
  *
- * \param bits Bit pattern indicating blocks to reset. See \ref reset_bitmask
+ * \param bits リセットするブロックを示すビットパターン. \ref reset_bitmask を参照
  */
 static inline void reset_block(uint32_t bits) {
     hw_set_bits(&resets_hw->reset, bits);
 }
 
-/*! \brief bring specified HW blocks out of reset
+/*! \brief 指定したHWブロックをリセットから復帰させる
  *  \ingroup hardware_resets
  *
- * \param bits Bit pattern indicating blocks to unreset. See \ref reset_bitmask
+ * \param bits アンリセットするブロックを示すビットパターン. \ref reset_bitmask を参照
  */
 static inline void unreset_block(uint32_t bits) {
     hw_clear_bits(&resets_hw->reset, bits);
 }
 
-/*! \brief Bring specified HW blocks out of reset and wait for completion
+/*! \brief 指定したHWブロックをリセットから復帰させ完了を待つ
  *  \ingroup hardware_resets
  *
- * \param bits Bit pattern indicating blocks to unreset. See \ref reset_bitmask
+ * \param bits アンリセットするブロックを示すビットパターン. \ref reset_bitmask を参照
  */
 static inline void unreset_block_wait(uint32_t bits) {
     hw_clear_bits(&resets_hw->reset, bits);
