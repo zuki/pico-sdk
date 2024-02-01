@@ -13,16 +13,18 @@
 /** \file hardware/rtc.h
  *  \defgroup hardware_rtc hardware_rtc
  *
- * Hardware Real Time Clock API
+ * \brief ハードウェアリアルタイムクックAPI
  *
- * The RTC keeps track of time in human readable format and generates events when the time is equal
- * to a preset value. Think of a digital clock, not epoch time used by most computers. There are seven
- * fields, one each for year (12 bit), month (4 bit), day (5 bit), day of the week (3 bit), hour (5 bit)
- * minute (6 bit) and second (6 bit), storing the data in binary format.
+ * RTCは人間が読めるフォーマットで時間を記録し、時間がプリセット値と
+ * 等しくなった際にイベントを発生させます。ほとんどのコンピューターで
+ * 使用されているエポックタイムではなく、デジタル時計を思い浮かべて
+ * ください。年（12ビット）、月（4ビット）、日（5ビット）、曜日（3ビット）、
+ * 時（5ビット）、分（6ビット）、秒（6ビット）の7つのフィールドがあり、
+ * データはバイナリ形式で格納されます。
  *
  * \sa datetime_t
  *
- * \subsection rtc_example Example
+ * \subsection rtc_example サンプルコード
  * \addtogroup hardware_rtc
  *
  * \include hello_rtc.c
@@ -32,58 +34,59 @@
 extern "C" {
 #endif
 
-/*! Callback function type for RTC alarms
+/*! RTCアラームのコールバック関数型
  *  \ingroup hardware_rtc
  *
  * \sa rtc_set_alarm()
  */
 typedef void (*rtc_callback_t)(void);
 
-/*! \brief Initialise the RTC system
+/*! \brief RTCシステムを初期化する
  *  \ingroup hardware_rtc
  */
 void rtc_init(void);
 
-/*! \brief Set the RTC to the specified time
+/*! \brief 指定した時間をRTCにセットする
  *  \ingroup hardware_rtc
  *
- * \note Note that after setting the RTC date and time, a subsequent read of the values (e.g. via rtc_get_datetime()) may not
- * reflect the new setting until up to three cycles of the potentially-much-slower RTC clock domain have passed. This represents a period
- * of 64 microseconds with the default RTC clock configuration.
+ * \note RTCの日付と時刻を設定した後、その値を（rtc_get_datetime()などで）
+ * 読み取っても、潜在的に非常に遅いRTCクロックドメインの最大3サイクルが
+ * 経過するまでは新しい設定が反映されない可能性があることに注意してください。
+ * これはデフォルトのRTCクロックの構成では64マイクロ秒の周期に相当します。
  *
- * \param t Pointer to a \ref datetime_t structure contains time to set
- * \return true if set, false if the passed in datetime was invalid.
+ * \param t セットする時間を含む \ref datetime_t 構造体へのポインタ
+ * \return セットされた場合は true, 指定した日時が不正な場合は false
  */
 bool rtc_set_datetime(datetime_t *t);
 
-/*! \brief Get the current time from the RTC
+/*! \brief RTCから現在の時間を取得する
  *  \ingroup hardware_rtc
  *
- * \param t Pointer to a \ref datetime_t structure to receive the current RTC time
- * \return true if datetime is valid, false if the RTC is not running.
+ * \param t 現在のRTC時間を受け取る \ref datetime_t 構造体へのポインタ
+ * \return 日時が有効な場合は true, RTCが動いていない場合は false
  */
 bool rtc_get_datetime(datetime_t *t);
 
-/*! \brief Is the RTC running?
+/*! \brief RTCが動いているかチェックする
  *  \ingroup hardware_rtc
  *
  */
 bool rtc_running(void);
 
-/*! \brief Set a time in the future for the RTC to call a user provided callback
+/*! \brief RTCがユーザ提供のコールバックを呼び出す未来の時間を設定する
  *  \ingroup hardware_rtc
  *
- *  \param t Pointer to a \ref datetime_t structure containing a time in the future to fire the alarm. Any values set to -1 will not be matched on.
- *  \param user_callback pointer to a \ref rtc_callback_t to call when the alarm fires
+ *  \param t アラームを発火する将来の時間を含む \ref datetime_t 構造体へのポインタ. -1にセットされた値にはマッチしません
+ *  \param user_callback アラームが発火した際に呼び出す \ref rtc_callback_t へのポインタ
  */
 void rtc_set_alarm(datetime_t *t, rtc_callback_t user_callback);
 
-/*! \brief Enable the RTC alarm (if inactive)
+/*! \brief RTCアラームを（アクティブであれば）有効にする
  *  \ingroup hardware_rtc
  */
 void rtc_enable_alarm(void);
 
-/*! \brief Disable the RTC alarm (if active)
+/*! \brief RTCアラームを（アクティブであれば）無効にする
  *  \ingroup hardware_rtc
  */
 void rtc_disable_alarm(void);
