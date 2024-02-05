@@ -1,6 +1,6 @@
 **host** ディレクトリにはコンピュータ（Raspberry Pi OSやLinux、macOS、Cygwinや
 Windows Subsystem for Linuxを使用したWindows）上で簡単なアプリケーションを実行
-できるようにするための基本的な置換ライブラリの実装が含まれています。CMakeビルドで`PICO_PLATFORM=host`とすることで選択されます。
+できるようにするための基本的な代替ライブラリの実装が含まれています。CMakeビルドで`PICO_PLATFORM=host`とすることで選択されます。
 
 より高度なアプリケーションコードのテストやデバッグ、あるいは、RP2040で実行できる
 ほど小さくはないコードの移植に非常に便利です。
