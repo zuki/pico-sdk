@@ -10,14 +10,14 @@
 /** \file binary_info.h
  *  \defgroup pico_binary_info pico_binary_info
  *
- * Binary info is intended for embedding machine readable information with the binary in FLASH.
+ * \brief バイナリ情報はFLASHのバイナリに機械可読情報を埋め込むためのものである.
  *
- * Example uses include:
+ * 以下が使用例です。
  *
- * - Program identification / information
- * - Pin layouts
- * - Included features
- * - Identifying flash regions used as block devices/storage
+ * - プログラム識別子 / 情報
+ * - ピンレイアウト
+ * - 含まれる機能
+ * - ブロックデバイス/ストレージとして使用されるフラッシュ領域の識別
  */
 
 #include "pico/binary_info/defs.h"
