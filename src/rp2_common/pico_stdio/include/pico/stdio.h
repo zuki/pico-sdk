@@ -8,10 +8,12 @@
 #define _PICO_STDIO_H
 
 /** \file stdio.h
-*  \defgroup pico_stdio pico_stdio
-* カスタマイズされたstdioサポートはUART、USB、セミホストなどからの入出力を可能にする.
-*
-* \note 入力出力デバイスを追加するためのAPIはまだ安定したものとはみなされていません。
+ *  \defgroup pico_stdio pico_stdio
+ * \brief カスタマイズstdioサポート.
+ *
+ * UART、USB、セミホストなどからの入出力を可能にします。.
+ *
+ * \note 入出力デバイスを追加するためのAPIはまだ安定したものとはみなされていません。
 */
 
 #include "pico.h"
