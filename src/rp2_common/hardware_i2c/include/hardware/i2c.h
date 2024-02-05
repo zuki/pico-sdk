@@ -50,7 +50,7 @@ extern "C" {
  * I2Cコントローラとその使用方法の詳細についてはデータシートを参照して
  * ください。
  *
- * \subsection i2c_example Example
+ * \subsection i2c_example サンプルコード
  * \addtogroup hardware_i2c
  * \include bus_scan.c
  */

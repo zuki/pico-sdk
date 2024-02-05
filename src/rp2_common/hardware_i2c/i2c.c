@@ -25,8 +25,8 @@ static inline void i2c_unreset(i2c_inst_t *i2c) {
     unreset_block_wait(i2c == i2c0 ? RESETS_RESET_I2C0_BITS : RESETS_RESET_I2C1_BITS);
 }
 
-// Addresses of the form 000 0xxx or 111 1xxx are reserved. No slave should
-// have these addresses.
+// 000 0xxx または 111 1xxx の形のアドレスは予約されている。これらの
+// アドレスを持つスレーブはない
 #define i2c_reserved_addr(addr) (((addr) & 0x78) == 0 || ((addr) & 0x78) == 0x78)
 
 uint i2c_init(i2c_inst_t *i2c, uint baudrate) {
