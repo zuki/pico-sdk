@@ -18,31 +18,38 @@ extern "C" {
 /** \file hardware/sync.h
  *  \defgroup hardware_sync hardware_sync
  *
- * Low level hardware spin locks, barrier and processor event APIs
+ * \brief 低水準のハードウェア・スピンロック、バリア、プロセッサイベントaPI
  *
- * Spin Locks
+ * スピンロック
  * ----------
  *
- * The RP2040 provides 32 hardware spin locks, which can be used to manage mutually-exclusive access to shared software
- * and hardware resources.
+ * RP2040 は32個のハードウェア・スピンロックを提供しており、共有の
+ * ソフトウェア/ハードウェア資源への相互排他的なアクセスの管理に
+ * 使用することができます。
  *
- * Generally each spin lock itself is a shared resource,
- * i.e. the same hardware spin lock can be used by multiple higher level primitives (as long as the spin locks are neither held for long periods, nor
- * held concurrently with other spin locks by the same core - which could lead to deadlock). A hardware spin lock that is exclusively owned can be used
- * individually without more flexibility and without regard to other software. Note that no hardware spin lock may
- * be acquired re-entrantly (i.e. hardware spin locks are not on their own safe for use by both thread code and IRQs) however the default spinlock related
- * methods here (e.g. \ref spin_lock_blocking) always disable interrupts while the lock is held as use by IRQ handlers and user code is common/desirable,
- * and spin locks are only expected to be held for brief periods.
+ * 通常、各スピンロック自体は共有リソースです。すなわち、同一の
+ * ハードウェア・スピンロックを複数の上位プリミティブが使用することが
+ * できます（スピンロックを長期間保持したり、同一コアで他のスピンロックを
+ * 同時に保持しない限りです。この場合はデッドロックが発生する可能性があります）。
+ * 排他的に所有するハードウェアスピンロックは柔軟性はありませんが、他の
+ * ソフトウェアに関係なく個別に使用することができます。ハードウェア・
+ * スピンロックは再入可能な形で取得することはできません（すなわち、
+ * ハードウェア・スピンロックはスレッドコードやIRQて使用するのは安全では
+ * ありません）。ただし、デフォルトのスピンロック関連関数はロックが保持
+ * されている間は常に割り込みを禁止します（ \ref spin_lock_blocking など）。
+ * IRQハンドラやユーザーコードによる使用が一般的で望ましいからであり。
+ * スピンロックは短時間しか保持されないと予想されるからです。
  *
- * The SDK uses the following default spin lock assignments, classifying which spin locks are reserved for exclusive/special purposes
- * vs those suitable for more general shared use:
+ * SDKは以下のデフォルトのスピンロック割り当てを使用します。そして、スピン
+ * ロックが排他的/特別な用途用に予約されているかｒ、あるいは、より一般的な
+ * 共有使用に適しているかにより分類されています。
  *
- * Number (ID) | Description
+ * 番号 (ID) | 説明
  * :---------: | -----------
- * 0-13        | Currently reserved for exclusive use by the SDK and other libraries. If you use these spin locks, you risk breaking SDK or other library functionality. Each reserved spin lock used individually has its own PICO_SPINLOCK_ID so you can search for those.
- * 14,15       | (\ref PICO_SPINLOCK_ID_OS1 and \ref PICO_SPINLOCK_ID_OS2). Currently reserved for exclusive use by an operating system (or other system level software) co-existing with the SDK.
- * 16-23       | (\ref PICO_SPINLOCK_ID_STRIPED_FIRST - \ref PICO_SPINLOCK_ID_STRIPED_LAST). Spin locks from this range are assigned in a round-robin fashion via \ref next_striped_spin_lock_num(). These spin locks are shared, but assigning numbers from a range reduces the probability that two higher level locking primitives using _striped_ spin locks will actually be using the same spin lock.
- * 24-31       | (\ref PICO_SPINLOCK_ID_CLAIM_FREE_FIRST - \ref PICO_SPINLOCK_ID_CLAIM_FREE_LAST). These are reserved for exclusive use and are allocated on a first come first served basis at runtime via \ref spin_lock_claim_unused()
+ * 0-13        | 現在、SDKと他のライブラリによる排他的使用のために予約されています。これらのスピンロックを使用するとSDKや他のライブラリの機能を破壊するおそれがあります。個別に使用される予約スピンロックには各々独自のPICO_SPINLOCK_IDがあるのでそれらを検索することができます。
+ * 14,15       | (\ref PICO_SPINLOCK_ID_OS1 と \ref PICO_SPINLOCK_ID_OS2). 現在、SDKと共存するオペレーティングシステム（または他のシステムレベルのソフトウェア）による排他的使用のために予約されています
+ * 16-23       | (\ref PICO_SPINLOCK_ID_STRIPED_FIRST - \ref PICO_SPINLOCK_ID_STRIPED_LAST). この範囲のスピンロックは \ref next_striped_spin_lock_num() によりラウンドロビン方式で割り当てられます。これらのスピンロックは共有されますが、この範囲からの番号の割り当ては _割り当てられた_ スピンロックを使用する2つの高水準ロックプリミティブが実際に同じスピンロックを使用する確率を低下させます。
+ * 24-31       | (\ref PICO_SPINLOCK_ID_CLAIM_FREE_FIRST - \ref PICO_SPINLOCK_ID_CLAIM_FREE_LAST). 排他的な使用のために予約されており、実行時に \ref spin_lock_claim_unused() により先着順に割り当てられます。
  */
 
 // PICO_CONFIG: PARAM_ASSERTIONS_ENABLED_SYNC, Enable/disable assertions in the HW sync module, type=bool, default=0, group=hardware_sync
@@ -50,7 +57,7 @@ extern "C" {
 #define PARAM_ASSERTIONS_ENABLED_SYNC 0
 #endif
 
-/** \brief A spin lock identifier
+/** \brief スピンロック識別子
  * \ingroup hardware_sync
  */
 typedef volatile uint32_t spin_lock_t;
@@ -109,10 +116,10 @@ typedef volatile uint32_t spin_lock_t;
 #define PICO_SPINLOCK_ID_CLAIM_FREE_LAST 31
 #endif
 
-/*! \brief Insert a SEV instruction in to the code path.
+/*! \brief コードパスにSEV命令を挿入する.
  *  \ingroup hardware_sync
 
- * The SEV (send event) instruction sends an event to both cores.
+ * SEV (send event) 命令はイベントを両コアに送信します。
  */
 #if !__has_builtin(__sev)
 __force_inline static void __sev(void) {
@@ -120,11 +127,11 @@ __force_inline static void __sev(void) {
 }
 #endif
 
-/*! \brief Insert a WFE instruction in to the code path.
+/*! \brief コードパスにWFE命令を挿入する.
  *  \ingroup hardware_sync
  *
- * The WFE (wait for event) instruction waits until one of a number of
- * events occurs, including events signalled by the SEV instruction on either core.
+ * WFE (wait for event) 命令は、どちらかのコアでSEV命令により通知された
+ * イベントを含む、多くのイベントの内の1つが発生するまで待機します。
  */
 #if !__has_builtin(__wfe)
 __force_inline static void __wfe(void) {
@@ -132,10 +139,10 @@ __force_inline static void __wfe(void) {
 }
 #endif
 
-/*! \brief Insert a WFI instruction in to the code path.
+/*! \brief コードパスにWFI命令を挿入する.
   *  \ingroup hardware_sync
 *
- * The WFI (wait for interrupt) instruction waits for a interrupt to wake up the core.
+ * WFI (wait for interrupt) 命令はコアを起床っさせる割り込みが発生するまで待機します。
  */
 #if !__has_builtin(__wfi)
 __force_inline static void __wfi(void) {
@@ -143,39 +150,39 @@ __force_inline static void __wfi(void) {
 }
 #endif
 
-/*! \brief Insert a DMB instruction in to the code path.
+/*! \brief コードパスにDMB命令を挿入する.
  *  \ingroup hardware_sync
  *
- * The DMB (data memory barrier) acts as a memory barrier, all memory accesses prior to this
- * instruction will be observed before any explicit access after the instruction.
+ * DMB (data memory barrier) はメモリバリアとしてとして機能し、この命令
+ * 以前のすべてのメモリアクセスは命令後の明示的なアクセスの前に観測されます。
  */
 __force_inline static void __dmb(void) {
     pico_default_asm_volatile("dmb" : : : "memory");
 }
 
-/*! \brief Insert a DSB instruction in to the code path.
+/*! \brief コードパスにDSB命令を挿入する.
  *  \ingroup hardware_sync
  *
- * The DSB (data synchronization barrier) acts as a special kind of data
- * memory barrier (DMB). The DSB operation completes when all explicit memory
- * accesses before this instruction complete.
+ * DSB (data synchronization barrier) は特殊なメモリバリア（DMB）として
+ * 機能します。DSB動作はこの命令より前のすべての明示的なメモリアクセスが
+ * 完了したときに完了します。
  */
 __force_inline static void __dsb(void) {
     pico_default_asm_volatile("dsb" : : : "memory");
 }
 
-/*! \brief Insert a ISB instruction in to the code path.
+/*! \brief コードパスにISB命令を挿入する.
  *  \ingroup hardware_sync
  *
- * ISB acts as an instruction synchronization barrier. It flushes the pipeline of the processor,
- * so that all instructions following the ISB are fetched from cache or memory again, after
- * the ISB instruction has been completed.
+ * ISBは命令同期バリアとして機能します。ISBはプロセッサのパイプラインを
+ * フラッシュするため、ISBに続くすべての命令はISB命令が完了した後に
+ * キャッシュまたはメモリから再びフェッチされます。
  */
 __force_inline static void __isb(void) {
     pico_default_asm_volatile("isb" ::: "memory");
 }
 
-/*! \brief Acquire a memory fence
+/*! \brief メモリフェンスを取得する
  *  \ingroup hardware_sync
  */
 __force_inline static void __mem_fence_acquire(void) {
@@ -190,7 +197,7 @@ __force_inline static void __mem_fence_acquire(void) {
 //#endif
 }
 
-/*! \brief Release a memory fence
+/*! \brief メモリフェンスを解除する
  *  \ingroup hardware_sync
  *
  */
