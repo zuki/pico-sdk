@@ -8,12 +8,12 @@
 #define _PICO_MALLOC_H
 
 /** \file malloc.h
-*  \defgroup pico_malloc pico_malloc
-*
-* Multi-core safety for malloc, calloc and free
-*
-* This library does not provide any additional functions
-*/
+ *  \defgroup pico_malloc pico_malloc
+ *
+ * \brief マルチコアで安全なmalloc、calloc、free.
+ *
+ * 本ライブラリは追加関数は提供していません。
+ */
 
 // PICO_CONFIG: PICO_USE_MALLOC_MUTEX, Whether to protect malloc etc with a mutex, type=bool, default=1 with pico_multicore, 0 otherwise, group=pico_malloc
 #if LIB_PICO_MULTICORE && !defined(PICO_USE_MALLOC_MUTEX)
