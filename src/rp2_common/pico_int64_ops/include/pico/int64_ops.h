@@ -12,9 +12,9 @@
 /** \file int64_ops.h
  *  \defgroup pico_int64_ops pico_int64_ops
  *
- * Optimized replacement implementations of the compiler built-in 64 bit multiplication
+ * \brief コンパイラ組み込みの64ビット乗算の最適化された代替実装.
  *
- * This library does not provide any additional functions
+ * 本ライブラリは追加関数は提供していません。
 */
 
 #endif
