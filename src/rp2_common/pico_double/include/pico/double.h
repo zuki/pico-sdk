@@ -18,16 +18,15 @@ extern "C" {
 /** \file double.h
 *  \defgroup pico_double pico_double
 *
-* Optimized double-precision floating point functions
+* \brief 最適化された倍精度浮動小数点関数
 *
-* (Replacement) optimized implementations are provided of the following compiler built-ins
-* and math library functions:
+* (代替）次のコンパイラ組み込み関数と数学ライブラリ関数の最適化実装が提供されています。
 *
 * - __aeabi_dadd, __aeabi_ddiv, __aeabi_dmul, __aeabi_drsub, __aeabi_dsub, __aeabi_cdcmpeq, __aeabi_cdrcmple, __aeabi_cdcmple, __aeabi_dcmpeq, __aeabi_dcmplt, __aeabi_dcmple, __aeabi_dcmpge, __aeabi_dcmpgt, __aeabi_dcmpun, __aeabi_i2d, __aeabi_l2d, __aeabi_ui2d, __aeabi_ul2d, __aeabi_d2iz, __aeabi_d2lz, __aeabi_d2uiz, __aeabi_d2ulz, __aeabi_d2f
 * - sqrt, cos, sin, tan, atan2, exp, log, ldexp, copysign, trunc, floor, ceil, round, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, exp2, log2, exp10, log10, pow,, hypot, cbrt, fmod, drem, remainder, remquo, expm1, log1p, fma
 * - powint, sincos (GNU extensions)
 *
-* The following additional optimized functions are also provided:
+* さらに次の最適化関数も提供されています。
 *
 * - fix2double, ufix2double, fix642double, ufix642double, double2fix, double2ufix, double2fix64, double2ufix64, double2int, double2int64, double2int_z, double2int64_z
 */
