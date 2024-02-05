@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,7 +35,7 @@
 /** \file printf.h
  *  \defgroup pico_printf pico_printf
  *
- * Compact replacement for printf by Marco Paland (info@paland.com)
+ * Marco Paland氏 (info@paland.com) によるprintfのコンパクトな代替関数.
  */
 
 #ifdef __cplusplus
@@ -69,13 +69,15 @@ bool weak_raw_vprintf(const char *fmt, va_list args);
 #define weak_raw_vprintf(fmt,va) ({vprintf(fmt,va); true;})
 #endif
 
-/**
- * printf with output function
- * You may use this as dynamic alternative to printf() with its fixed _putchar() output
- * \param out An output function which takes one character and an argument pointer
- * \param arg An argument pointer for user data passed to output function
- * \param format A string that specifies the format of the output
- * \return The number of characters that are sent to the output function, not counting the terminating null character
+/**!
+ * \ingroup pico_printf
+ * \brief 出力関数付きprintf.
+ *
+ * _putchar() による固定出力を持つ printf() の動的な代替関数として使用することができます。
+ * \param out 引数として1文字と引数へのポインタを取る出力関数
+ * \param arg 出力関数に渡すユーザデータ用の引数ポインタ
+ * \param format 出力形式を指定する文字列
+ * \return 出力関数に送信された文字数. 終端のnull文字は含まない
  */
 int vfctprintf(void (*out)(char character, void *arg), void *arg, const char *format, va_list va);
 
