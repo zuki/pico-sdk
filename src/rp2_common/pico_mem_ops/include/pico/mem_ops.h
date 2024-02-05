@@ -12,11 +12,11 @@
 /** \file mem_ops.h
  *  \defgroup pico_mem_ops pico_mem_ops
  *
- * Provides optimized replacement implementations of the compiler built-in memcpy, memset and related functions:
+ * \brief コンパイラ組み込みの memcpy, memset および関連関数の最適化された代替実装を提供する.
  *
- * - memset, memcpy
- * - __aeabi_memset, __aeabi_memset4, __aeabi_memset8, __aeabi_memcpy, __aeabi_memcpy4, __aeabi_memcpy8
+ * * memset、memcpy
+ * * __aeabi_memset, __aeabi_memset4, __aeabi_memset8, __aeabi_memcpy, __aeabi_memcpy4, __aeabi_memcpy8
  *
- * This library does not provide any additional functions
+ * 本ライブラリは追加関数は提供していません。
  */
 #endif
