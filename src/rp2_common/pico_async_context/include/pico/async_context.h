@@ -7,9 +7,9 @@
 /** \file pico/async_context.h
  *  \defgroup pico_async_context pico_async_context
  *
- * An \ref async_context は論理的にはシングルスレッドのコンテキストを提供し、
+ * \ref async_context は論理的にはシングルスレッドのコンテキストを提供し、
  * workの実行や非同期イベントへの応答を行います。したって、 async_context の
- * インスタンスは、リエントラントでないサードパーティライブラリを扱うのに適している。
+ * インスタンスは、リエントラントでないサードパーティライブラリを扱うのに適しています。
  *
  * async_contextの"context"とは、async_context内でワーカーやタイムアウトを呼び出す際に
  * さまざまな事前条件が以下の事実を持っていることを意味します。
