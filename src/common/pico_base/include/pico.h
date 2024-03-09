@@ -9,12 +9,14 @@
 
 /** \file pico.h
  *  \defgroup pico_base pico_base
+ *  \brief Raspberry Pi Pico SDKの型とマクロ.
  *
- * Core types and macros for the Raspberry Pi Pico SDK. This header is intended to be included by all source code
- * as it includes configuration headers and overrides in the correct order
+ * Raspberry Pi Pico SDKのコアな型とマクロです。このヘッダはすべての
+ * ソースコードにインクルードされることを意図しています。個のヘッダは
+ * 構成用のヘッダをインクルードし、正しい順番でオーバーライドするからです。
  *
- * This header may be included by assembly code
-*/
+ * このヘッダはアセンブリコードに含めることができます。
+ */
 
 // We may be included by assembly which cant include <cdefs.h>
 #define	__PICO_STRING(x)	#x
