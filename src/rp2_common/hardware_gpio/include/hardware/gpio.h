@@ -739,11 +739,11 @@ static inline void gpio_put_all(uint32_t value) {
     sio_hw->gpio_out = value;
 }
 
-/*! \brief Drive a single GPIO high/low
+/*! \brief GPIOの1つをhigh/lowにする
  *  \ingroup hardware_gpio
  *
- * \param gpio GPIO number
- * \param value If false clear the GPIO, otherwise set it.
+ * \param gpio GPIO番号
+ * \param value falseの場合はGPIOをクリア(low)に、trueの場合はセット(high)する
  */
 static inline void gpio_put(uint gpio, bool value) {
     uint32_t mask = 1ul << gpio;
