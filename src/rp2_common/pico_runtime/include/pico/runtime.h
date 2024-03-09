@@ -13,7 +13,10 @@ extern "C" {
 
 /** \file runtime.h
 *  \defgroup pico_runtime pico_runtime
-* @ref pico_bit_ops, @ref pico_divider, @ref pico_double, @ref pico_int64_ops, @ref pico_float, @ref pico_malloc, @ref pico_mem_ops, @ref pico_standard_link を含む実行時サポートを集めたもの.
+*  \brief ランタイム関数をまとめたもの.
+*
+* @ref pico_bit_ops, @ref pico_divider, @ref pico_double, @ref pico_int64_ops, @ref pico_float, @ref pico_malloc, @ref pico_mem_ops, @ref pico_standard_link を含む
+* ランタイム関数サポートを集めたものです。
 */
 
 
