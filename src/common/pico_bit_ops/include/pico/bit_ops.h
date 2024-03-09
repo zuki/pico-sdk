@@ -16,24 +16,25 @@ extern "C" {
 /** \file bit_ops.h
 *  \defgroup pico_bit_ops pico_bit_ops
 *
-* Optimized bit manipulation functions.
-* Additionally provides  replacement implementations of the compiler built-ins __builtin_popcount, __builtin_clz
-* and __bulitin_ctz
+* \brief 最適化されたビット操作関数.
+*
+* さらに、__builtin_popcountと__builtin_clz, __bulitin_ctzの
+* コンパイラのビルトイン実装を置き換えます。
 */
 
-/*! \brief Reverse the bits in a 32 bit word
+/*! \brief 32ビットワードを反転
  *  \ingroup pico_bit_ops
  *
- * \param bits 32 bit input
- * \return the 32 input bits reversed
+ * \param bits 32ビット入力
+ * \return 32ビット入力を反転したワード
  */
 uint32_t __rev(uint32_t bits);
 
-/*! \brief Reverse the bits in a 64 bit double word
+/*! \brief 64ビットワードを反転
  *  \ingroup pico_bit_ops
  *
- * \param bits 64 bit input
- * \return the 64 input bits reversed
+ * \param bits 64ビット入力
+ * \return 64ビット入力を反転したワード
  */
 uint64_t __revll(uint64_t bits);
 
