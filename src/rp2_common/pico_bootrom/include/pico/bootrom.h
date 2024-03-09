@@ -11,9 +11,9 @@
 
 /** \file bootrom.h
  * \defgroup pico_bootrom pico_bootrom
- * Access to functions and data in the RP2040 bootrom
+ * \brief RP2040のbootromの関数とデータにアクセスする.
  *
- * This header may be included by assembly code
+ * 個のヘッダはアセンブリコードでもインクルードできます。
  */
 
 // ROM FUNCTIONS
@@ -34,14 +34,14 @@
 #define ROM_FUNC_FLASH_FLUSH_CACHE      ROM_TABLE_CODE('F', 'C')
 #define ROM_FUNC_FLASH_ENTER_CMD_XIP    ROM_TABLE_CODE('C', 'X')
 
-/*! \brief Return a bootrom lookup code based on two ASCII characters
+/*! \brief 2つのASCII文字に基づいてbootromのlookupコードを返す.
  * \ingroup pico_bootrom
  *
- * These codes are uses to lookup data or function addresses in the bootrom
+ * これらのコードはbootromのデータと関数のアドレスの検索に使用されます。
  *
- * \param c1 the first character
- * \param c2 the second character
- * \return the 'code' to use in rom_func_lookup() or rom_data_lookup()
+ * \param c1 第1文字
+ * \param c2 第2文字
+ * \return rom_func_lookup()とrom_data_lookup()で使用される 'code'
  */
 #define ROM_TABLE_CODE(c1, c2) ((c1) | ((c2) << 8))
 
@@ -70,45 +70,47 @@ typedef void (*rom_flash_enter_cmd_xip_fn)(void);
 extern "C" {
 #endif
 
-/*! \brief Return a bootrom lookup code based on two ASCII characters
+/*! \brief 2つのASCII文字に基づいてbootromのlookupコードを返す.
  * \ingroup pico_bootrom
  *
- * These codes are uses to lookup data or function addresses in the bootrom
+ * これらのコードはbootromのデータと関数のアドレスの検索に使用されます。
  *
- * \param c1 the first character
- * \param c2 the second character
- * \return the 'code' to use in rom_func_lookup() or rom_data_lookup()
+ * \param c1 第1文字
+ * \param c2 第2文字
+ * \return rom_func_lookup()とrom_data_lookup()で使用される 'code'
  */
 static inline uint32_t rom_table_code(uint8_t c1, uint8_t c2) {
     return ROM_TABLE_CODE((uint32_t) c1, (uint32_t) c2);
 }
 
 /*!
- * \brief Lookup a bootrom function by code
+ * \brief コードによりbootromの関数を探す
  * \ingroup pico_bootrom
- * \param code the code
- * \return a pointer to the function, or NULL if the code does not match any bootrom function
+ * \param code コード
+ * \return 関数へのポインタ、または、コードがいずれのbootrom関数にも
+ *         マッチしない場合はNULL
  */
 void *rom_func_lookup(uint32_t code);
 
 /*!
- * \brief Lookup a bootrom address by code
+ * \brief コードによりbootromのアドレスを探す
  * \ingroup pico_bootrom
- * \param code the code
- * \return a pointer to the data, or NULL if the code does not match any bootrom function
+ * \param code コード
+ * \return データへのポインタ、または、コードがいずれのbootrom関数にも
+ *         マッチしない場合はNULLa
  */
 void *rom_data_lookup(uint32_t code);
 
 /*!
- * \brief Helper function to lookup the addresses of multiple bootrom functions
+ * \brief 複数のbootrom関数のアドレスを検索するヘルパー関数
  * \ingroup pico_bootrom
  *
- * This method looks up the 'codes' in the table, and convert each table entry to the looked up
- * function pointer, if there is a function for that code in the bootrom.
+ * この関数はテーブル内の'codes'を検索して、そのコードがbootromにある場合は
+ * 各テーブルエントリを検索関数へのポインタに変換します。
  *
- * \param table an IN/OUT array, elements are codes on input, function pointers on success.
- * \param count the number of elements in the table
- * \return true if all the codes were found, and converted to function pointers, false otherwise
+ * \param table IN/OUT配列、要素は入力時はコード、成功した際の出力は関数ポインタ
+ * \param count テーブルの要素数
+ * \return すべてのコードが見つかり関数ポインタに変換したらtrue、創でなければ false
  */
 bool rom_funcs_lookup(uint32_t *table, unsigned int count);
 
@@ -130,10 +132,13 @@ static inline void *rom_hword_as_ptr(uint16_t rom_address) {
 #endif
 
 /*!
- * \brief Lookup a bootrom function by code. This method is forcibly inlined into the caller for FLASH/RAM sensitive code usage
+ * \brief コードによりbootromのアドレスを探す.
+ * この関数はFLASH/RAMのセンシティブなコード使用法のため呼び出し元にインライン化を
+ * 強制します。
  * \ingroup pico_bootrom
  * \param code the code
- * \return a pointer to the function, or NULL if the code does not match any bootrom function
+ * \return 関数へのポインタ、または、コードがいずれのbootrom関数にも
+ *         マッチしない場合はNULL
  */
 static __force_inline void *rom_func_lookup_inline(uint32_t code) {
     rom_table_lookup_fn rom_table_lookup = (rom_table_lookup_fn) rom_hword_as_ptr(0x18);
@@ -142,21 +147,21 @@ static __force_inline void *rom_func_lookup_inline(uint32_t code) {
 }
 
 /*!
- * \brief Reboot the device into BOOTSEL mode
+ * \brief デバイスをBOOTSELモードで再起動する
  * \ingroup pico_bootrom
  *
- * This function reboots the device into the BOOTSEL mode ('usb boot").
+ * この関数はデバイスをBOOTSELモード（"usb boot"）で再起動します。
  *
- * Facilities are provided to enable an "activity light" via GPIO attached LED for the USB Mass Storage Device,
- * and to limit the USB interfaces exposed.
+ * USB大容量記憶装置用に接続されているLEDのGPIO経由の「アクティビティ・ライト」を有効にし、
+ * USBインタフェースの公開を制限するための機能が提供されています。
  *
- * \param usb_activity_gpio_pin_mask 0 No pins are used as per a cold boot. Otherwise a single bit set indicating which
- *                               GPIO pin should be set to output and raised whenever there is mass storage activity
- *                               from the host.
- * \param disable_interface_mask value to control exposed interfaces
- *  - 0 To enable both interfaces (as per a cold boot)
- *  - 1 To disable the USB Mass Storage Interface
- *  - 2 To disable the USB PICOBOOT Interface
+ * \param usb_activity_gpio_pin_mask コールドブートではピンを使用しない場合は0。
+ *    そうでなければ、出力に設定してホストからマスストレージのアクセスがあるたびに
+ *    オンにするピンを示すビットをセットする
+ * \param disable_interface_mask 公開インタフェースを制御する値
+ *  - 0 両インタフェースを有効にする（コールドブート時）
+ *  - 1 USBマスストレージインタフェースを無効にする
+ *  - 2 USB PICOBOOTインタフェースを無効にする
  */
 static inline void __attribute__((noreturn)) reset_usb_boot(uint32_t usb_activity_gpio_pin_mask,
                                                             uint32_t disable_interface_mask) {
