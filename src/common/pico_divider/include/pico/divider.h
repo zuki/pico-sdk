@@ -53,7 +53,7 @@ int32_t div_s32s32(int32_t a, int32_t b);
 static inline int32_t divmod_s32s32_rem(int32_t a, int32_t b, int32_t *rem) {
     divmod_result_t r = hw_divider_divmod_s32(a, b);
     *rem = to_remainder_s32(r);
-    return to_商_s32(r);
+    return to_quotient_s32(r);
 }
 
 /**
@@ -88,7 +88,7 @@ uint32_t div_u32u32(uint32_t a, uint32_t b);
 static inline uint32_t divmod_u32u32_rem(uint32_t a, uint32_t b, uint32_t *rem) {
     divmod_result_t r = hw_divider_divmod_u32(a, b);
     *rem = to_remainder_u32(r);
-    return to_商_u32(r);
+    return to_quotient_u32(r);
 }
 
 /**
