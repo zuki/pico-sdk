@@ -34,6 +34,7 @@
 
 /** \file printf.h
  *  \defgroup pico_printf pico_printf
+ *  \brief printfの代替関数.
  *
  * Marco Paland氏 (info@paland.com) によるprintfのコンパクトな代替関数.
  */
