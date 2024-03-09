@@ -9,8 +9,9 @@
 
 /** \file usb_reset_interface.h
  *  \defgroup pico_usb_reset_interface pico_usb_reset_interface
+ *  \brief リセットインタフェースの定義.
  *
- * Definition for the reset interface that may be exposed by the pico_stdio_usb library
+ * pico_stdio_usbライブラリにより公開されるリセットインタフェースの定義です。
  */
 
 // VENDOR sub-class for the reset interface
