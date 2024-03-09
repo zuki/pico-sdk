@@ -12,8 +12,9 @@
 
 /** \file uf2.h
 *  \defgroup boot_uf2 boot_uf2
-*
-* Header file for the UF2 format supported by an RP2040 in BOOTSEL mode.
+*  \brief UF2フォーマット用のヘッダーファイル.
+
+* RP2040のBOOTSELモードでサポートされているUF2フォーマット用のヘッダーファイルです。
 */
 
 #define UF2_MAGIC_START0 0x0A324655u
