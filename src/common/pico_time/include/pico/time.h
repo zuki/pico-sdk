@@ -17,14 +17,16 @@ extern "C" {
 /** \file time.h
  *  \defgroup pico_time pico_time
  *
- * API for accurate timestamps, sleeping, and time based callbacks
+ * \brief 正確なタイムスタンプ, スリープ、タイムベースのコールバック用のAPI.
  *
- * \note The functions defined here provide a much more powerful and user friendly wrapping around the
- * low level hardware timer functionality. For these functions (and any other SDK functionality
- * e.g. timeouts, that relies on them) to work correctly, the hardware timer should not be modified. i.e. it is expected
- * to be monotonically increasing once per microsecond. Fortunately there is no need to modify the hardware
- * timer as any functionality you can think of that isn't already covered here can easily be modelled
- * by adding or subtracting a constant value from the unmodified hardware timer.
+ * \note ここで定義されている関数は、低レベルのハードウェアタイマー機能のより強力、
+ * かつ、ユーザーフレンドリーなラッピングを提供します。これらの関数（やタイム
+ * アウトなどのこれらの関数に依存する他のSDK機能）が正しく動作するためには
+ * ハードウェアタイマーが変更されてはなりません。すなわち、マイクロ秒ごとに
+ * 単調に増分することが期待されています。幸いなことに、ハードウェアタイマーを
+ * 変更する必要はありません。ここでまだカバーされていない機能については変更されて
+ * いないハードウェアタイマーに定数値を加減算することで簡単にモデル化できる
+ * からです。
  *
  * \sa \ref hardware_timer
  */
@@ -41,18 +43,19 @@ extern "C" {
 /*!
  * \defgroup timestamp timestamp
  *  \ingroup pico_time
- * \brief Timestamp functions relating to points in time (including the current time)
+ * \brief （現在時を含む）時点に関するタイムスタンプ関数.
  *
- * These are functions for dealing with timestamps (i.e. instants in time) represented by the type absolute_time_t. This opaque
- * type is provided to help prevent accidental mixing of timestamps and relative time values.
+ * これらの関数はabsolute_time_t型で表現されるタイムスタンプ（すなわち、
+ * 時間の一点）を扱います。このopaque型はタイムスタンプと相対時間値を誤って
+ * 混在するのを防ぐために用意されています。
  */
 
-/*! \brief Return a representation of the current time.
+/*! \brief 現在時の表現を返す.
  * \ingroup timestamp
  *
- * Returns an opaque high fidelity representation of the current time sampled during the call.
+ * 呼び出し中にサンプリングされた現在時刻のopaqueな忠実度の高い表現を返します。
  *
- * \return the absolute time (now) of the hardware timer
+ * \return ハードウェアタイマーの絶対時刻 (now)
  *
  * \sa absolute_time_t
  * \sa sleep_until()
@@ -203,19 +206,20 @@ static inline bool is_nil_time(absolute_time_t t) {
 /*!
  * \defgroup sleep sleep
  * \ingroup pico_time
- * \brief Sleep functions for delaying execution in a lower power state.
+ * \brief 低電力状態で実行を遅延させるためのスリープ機能.
  *
- * These functions allow the calling core to sleep. This is a lower powered sleep; waking and re-checking time on every processor
- * event (WFE)
+ * これらの関数は呼び出し元のコアをスリープさせます。これは低電力スリープで
+ * です。プロセッサイベント（WFE）ごとに起床して時間を再チェックします。
  *
- * \note  These functions should not be called from an IRQ handler.
+ * \note  これらの関数はIRQハンドラから呼んではいけません。
  *
- * \note  Lower powered sleep requires use of the \link alarm_pool_get_default default alarm pool\endlink which may
- * be disabled by the PICO_TIME_DEFAULT_ALARM_POOL_DISABLED #define or currently full in which case these functions
- * become busy waits instead.
+ * \note  低電力のスリープには \link alarm_pool_get_default デフォルトアラームプール\endlink が必要です。これは、PICO_TIME_DEFAULT_ALARM_POOL_DISABLED #defineによって
+ * 無効化されているか、または満杯の場合があります。これらの場合、これらの関数は
+ * 低電力スリープではなくビジーウェイトします。
  *
- * \note  Whilst \a sleep_ functions are preferable to \a busy_wait functions from a power perspective, the \a busy_wait equivalent function
- * may return slightly sooner after the target is reached.
+ * \note  消費電力の観点からは \a sleep_ 関数は \a busy_wait 関数よりも望ましい
+ * ですが、 \a busy_wait に相当する関数はターゲットに到達した後、若干早く戻る
+ * 場合があります。
  *
  * \sa busy_wait_until() \sa busy_wait_us() \sa busy_wait_us_32()
  */
@@ -274,7 +278,7 @@ void sleep_ms(uint32_t ms);
  *             // do something
  *             return true;
  *         }
- *         // will try to sleep until timeout or the next processor event 
+ *         // will try to sleep until timeout or the next processor event
  *     } while (!best_effort_wfe_or_timeout(timeout_time));
  *     return false; // timed out
  * }
@@ -466,7 +470,7 @@ void alarm_pool_destroy(alarm_pool_t *pool);
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id for an active (at the time of return) alarm
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -510,7 +514,7 @@ alarm_id_t alarm_pool_add_alarm_at_force_in_context(alarm_pool_t *pool, absolute
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -537,7 +541,7 @@ static inline alarm_id_t alarm_pool_add_alarm_in_us(alarm_pool_t *pool, uint64_t
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -574,7 +578,7 @@ bool alarm_pool_cancel_alarm(alarm_pool_t *pool, alarm_id_t alarm_id);
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls before or during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -600,7 +604,7 @@ static inline alarm_id_t add_alarm_at(absolute_time_t time, alarm_callback_t cal
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
@@ -626,7 +630,7 @@ static inline alarm_id_t add_alarm_in_us(uint64_t us, alarm_callback_t callback,
  * @param callback the callback function
  * @param user_data user data to pass to the callback function
  * @param fire_if_past if true, and the alarm time falls during this call before the alarm can be set,
- *                     then the callback should be called during (by) this function instead 
+ *                     then the callback should be called during (by) this function instead
  * @return >0 the alarm id
  * @return 0 if the alarm time passed before or during the call AND there is no active alarm to return the id of.
  *           The latter can either happen because fire_if_past was false (i.e. no timer was ever created),
