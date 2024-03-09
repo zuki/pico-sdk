@@ -22,13 +22,13 @@
 #endif
 
 /** \defgroup pico_bootsel_via_double_reset pico_bootsel_via_double_reset
+ *  \brief リセットボタンのダブルタップによるBOOTSELモードによる起動.
  *
- * When the 'pico_bootsel_via_double_reset' library is linked, a function is
- * injected before main() which will detect when the system has been reset
- * twice in quick succession, and enter the USB ROM bootloader (BOOTSEL mode)
- * when this happens. This allows a double tap of a reset button on a
- * development board to be used to enter the ROM bootloader, provided this
- * library is always linked.
+ * 'pico_bootsel_via_double_reset'ライブラリがリンクされている場合、
+ * システムが連続して2回リセットされたことを検出する関数をmain()の
+ * 前に挿入し、これが発生した場合、USB ROMブートローダ（BOOTSELモード）に
+ * 入ります。このため、このライブラリを常にリンクしておけば開発ボードの
+ * リセットボタンをダブルタップするだけでROMブートローダに入ることができます。
  */
 
 #if !PICO_NO_BI_BOOTSEL_VIA_DOUBLE_RESET
