@@ -79,13 +79,14 @@ uint spi_get_baudrate(const spi_inst_t *spi) {
     return clock_get_hz(clk_peri) / (prescale * postdiv);
 }
 
-// Write len bytes from src to SPI. Simultaneously read len bytes from SPI to dst.
-// Note this function is guaranteed to exit in a known amount of time (bits sent * time per bit)
+// srcからSPIにlenバイト書き出す。同時にSPIからdstへlenバイト読み込む。
+// この関数は既知の時間（送信ビット数 * ビットあたりの時間）で終了することが
+// 保証されていることに注意。
 int __not_in_flash_func(spi_write_read_blocking)(spi_inst_t *spi, const uint8_t *src, uint8_t *dst, size_t len) {
     invalid_params_if(SPI, 0 > (int)len);
 
-    // Never have more transfers in flight than will fit into the RX FIFO,
-    // else FIFO will overflow if this code is heavily interrupted.
+    // RXのFIFOに収まる以上の転送を行ってはならない。このコードが何回も
+    // 中断された場合、FIFOはオーバーフローするからである。
     const size_t fifo_depth = 8;
     size_t rx_remaining = len, tx_remaining = len;
 
@@ -103,19 +104,20 @@ int __not_in_flash_func(spi_write_read_blocking)(spi_inst_t *spi, const uint8_t 
     return (int)len;
 }
 
-// Write len bytes directly from src to the SPI, and discard any data received back
+// srcからSPIに直接lenバイト書き出す。SPIから受信したデータは破棄する
 int __not_in_flash_func(spi_write_blocking)(spi_inst_t *spi, const uint8_t *src, size_t len) {
     invalid_params_if(SPI, 0 > (int)len);
-    // Write to TX FIFO whilst ignoring RX, then clean up afterward. When RX
-    // is full, PL022 inhibits RX pushes, and sets a sticky flag on
-    // push-on-full, but continues shifting. Safe if SSPIMSC_RORIM is not set.
+    // TX FIFOに書き込むがRXは無視する。その後クリーンアップする。
+    // RXがフルの場合、PL022はRXプッシュを禁止し、プッシュオンフルの
+    // スティッキーフラグを設定するがシフトは続行する。SSPIMSC_RORIMが
+    // 設定されていなければ安全である
     for (size_t i = 0; i < len; ++i) {
         while (!spi_is_writable(spi))
             tight_loop_contents();
         spi_get_hw(spi)->dr = (uint32_t)src[i];
     }
-    // Drain RX FIFO, then wait for shifting to finish (which may be *after*
-    // TX FIFO drains), then drain RX FIFO again
+    // RX FIFOをドレインし、シフトが終了するのを待ち（これはおそらく
+    // TX FIFOがドレインした*後*）、RX FIFOを再度ドレインする。
     while (spi_is_readable(spi))
         (void)spi_get_hw(spi)->dr;
     while (spi_get_hw(spi)->sr & SPI_SSPSR_BSY_BITS)
@@ -123,16 +125,15 @@ int __not_in_flash_func(spi_write_blocking)(spi_inst_t *spi, const uint8_t *src,
     while (spi_is_readable(spi))
         (void)spi_get_hw(spi)->dr;
 
-    // Don't leave overrun flag set
+    // オーバーランフラグはセットしたままにしない
     spi_get_hw(spi)->icr = SPI_SSPICR_RORIC_BITS;
 
     return (int)len;
 }
 
-// Read len bytes directly from the SPI to dst.
-// repeated_tx_data is output repeatedly on SO as data is read in from SI.
-// Generally this can be 0, but some devices require a specific value here,
-// e.g. SD cards expect 0xff
+// SPIからdstへ直接lenバイト読み込む。repeated_tx_dataはSIからデータが読み込める
+// 限りSOに繰り返し出力される。一般に、これには0を指定するが特定の値を要求する
+// デバイスもある。たとえば、SDカードは0xffを要求する
 int __not_in_flash_func(spi_read_blocking)(spi_inst_t *spi, uint8_t repeated_tx_data, uint8_t *dst, size_t len) {
     invalid_params_if(SPI, 0 > (int)len);
     const size_t fifo_depth = 8;
@@ -152,7 +153,8 @@ int __not_in_flash_func(spi_read_blocking)(spi_inst_t *spi, uint8_t repeated_tx_
     return (int)len;
 }
 
-// Write len halfwords from src to SPI. Simultaneously read len halfwords from SPI to dst.
+// srcからSPIにlen個のハーフバイト書き出す。同時にSPIからdstへlen個のハーフバイトを
+// 読み込む
 int __not_in_flash_func(spi_write16_read16_blocking)(spi_inst_t *spi, const uint16_t *src, uint16_t *dst, size_t len) {
     invalid_params_if(SPI, 0 > (int)len);
     // Never have more transfers in flight than will fit into the RX FIFO,
