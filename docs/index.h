@@ -38,8 +38,8 @@
  * @}
  *
  * \defgroup high_level 高水準API
- * このライブラリ群は、ハードウェアに関連しないより高水準の機能や基本的な
- * ハードウェアインタフェースを超えるよりリッチな機能を提供します.
+ * このライブラリ群は、ハードウェアに関連しない、より高水準の機能や基本的な
+ * ハードウェアインタフェースを超える、よりリッチな機能を提供します.
  * @{
  * \defgroup pico_async_context pico_async_context
  * \defgroup pico_flash pico_flash
@@ -54,14 +54,14 @@
  * @}
  *
  * \defgroup third_party サードパーティライブラリ
- * 高水準機能を実装するためのサードパーティライブラリ.
+ * 高水準機能を実装するためのサードパーティライブラリです.
  * @{
  * \defgroup tinyusb_device tinyusb_device
  * \defgroup tinyusb_host tinyusb_host
  * @}
  *
  * \defgroup networking ネットワークライブラリ
- * ネットワックを実装するための関数.
+ * ネットワックを実装するための関数です.
  * @{
  * \defgroup pico_btstack pico_btstack
  * \defgroup pico_lwip pico_lwip
@@ -72,7 +72,7 @@
  * \defgroup runtime ランタイムインフラストラクチャ
  * 特定の言語レベルとCライブラリ関数の効率的な実装を提供するために使用される
  * ライブラリとSDKのコンパイルとリンクのステップを抽象化するCMake INTERFACE
- * ライブラリ.
+ * ライブラリです.
  * @{
  * \defgroup boot_stage2 boot_stage2
  * \defgroup pico_base pico_base
@@ -95,7 +95,7 @@
  * @}
  *
  * \defgroup misc 外部APIヘッダー
- * SDK以外のコードで共有されるインタフェース用のヘッダー.
+ * SDK以外のコードで共有されるインタフェース用のヘッダーです.
  * @{
  * \defgroup boot_picoboot boot_picoboot
  * \defgroup boot_uf2 boot_uf2
