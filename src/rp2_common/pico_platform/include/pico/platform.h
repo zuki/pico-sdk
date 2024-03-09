@@ -10,11 +10,13 @@
 /** \file platform.h
  *  \defgroup pico_platform pico_platform
  *
+ *  \brief RP2ファミリのデバイス/アーキテクチャ用のマクロと定義（と関数）.
+ *
  * 低レベルのコンパイラ/プラットフォーム仕様に共通の抽象化を提供する
  * RP2ファミリのデバイス/アーキテクチャ用のマクロと定義（アセンブリ
  * コード以外にincludeされる場合は関数も）。
  *
- * このヘッダはアセンブリコードによりincludeされることががあります
+ * このヘッダをアセンブリコードはincludeすることができます。
  */
 
 #include "hardware/platform_defs.h"
@@ -65,7 +67,7 @@
 #define PICO_RP2040_B2_SUPPORTED 1
 #endif
 
-// --- remainder of file is not included by assembly code ---
+// --- 以下はアセンブリコードには含まれない ---
 
 #ifndef __ASSEMBLER__
 
@@ -108,7 +110,7 @@
 #ifndef __STRING
 #define __STRING(a)     #a
 #endif
-/* Compatible definitions of GCC builtins */
+/* GCCビルトイン互換の定義 */
 
 static inline uint __builtin_ctz(uint x) {
   extern uint32_t __ctzsi2(uint32_t);
@@ -122,7 +124,7 @@ static inline uint __builtin_ctz(uint x) {
 
 #include "pico/types.h"
 
-// GCC_Like_Pragma(x) is a pragma on GNUC compatible compilers
+// GCC_Like_Pragma(x) はGNUC互換コンパイラのpragma
 #ifdef __GNUC__
 #define GCC_Like_Pragma _Pragma
 #else
@@ -165,22 +167,23 @@ extern "C" {
  *
  * セクション属性は `.after_data.<group>` となる。
  *
- * \param group a string suffix to use in the section name to distinguish groups that can be linker
- *              garbage-collected independently
+ * \param group セクション名に使用する文字列サフィックス. これはリンカがガベージ
+ * コレクションを個別に実行できるグループを識別する。
  */
 #define __after_data(group) __attribute__((section(".after_data." group)))
 
-/*! \brief Section attribute macro for placement not in flash (i.e in RAM)
+/*! \brief フラッシュに配置しない（RAMに配置する）ためのセクション属性マクロ.
  *  \ingroup pico_platform
  *
- * For example a 3 element `uint32_t` array placed in RAM (even though it is `static const`)
+ * たとえば、3要素の `uint32_t` 配列を（たとえ `static const` であっても
+ * RAMに置く場合は次のように書く
  *
  *     static const uint32_t __not_in_flash("my_group_name") an_array[3];
  *
- * The section attribute is `.time_critical.<group>`
+ * セクション属性は `.time_critical.<group>` となる。
  *
- * \param group a string suffix to use in the section name to distinguish groups that can be linker
- *              garbage-collected independently
+ * \param group セクション名に使用する文字列サフィックス. これはリンカがガベージ
+ * コレクションを個別に実行できるグループを識別する
  */
 #define __not_in_flash(group) __attribute__((section(".time_critical." group)))
 
