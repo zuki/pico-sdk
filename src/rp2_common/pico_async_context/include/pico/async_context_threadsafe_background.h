@@ -10,11 +10,14 @@
 /** \file pico/async_context.h
  *  \defgroup async_context_threadsafe_background async_context_threadsafe_background
  *  \ingroup pico_async_context
- *  
- * async_context_threadsafe_background provides an implementation of \ref async_context that handles asynchronous
- * work in a low priority IRQ, and there is no need for the user to poll for work.
+ *  \brief スレッドセーフなバックグラウンド処理による非同期コンテキストの実装.
  *
- * \note The workers used with this async_context MUST be safe to call from an IRQ.
+ * async_context_threadsafe_background は低優先度IRQにおける
+ * 非同期作業を処理する \ref async_context の実装を提供します。
+ * ユーザはworkをポーリングする必要がありません。
+ *
+ * \note このasync_contextを使用するワーカはIRQからの呼び出しが
+ * 安全である必要ああります。
  */
 
 #include "pico/async_context.h"
@@ -33,22 +36,23 @@ extern "C" {
 typedef struct async_context_threadsafe_background async_context_threadsafe_background_t;
 
 /**
- * \brief Configuration object for async_context_threadsafe_background instances.
+ * \brief async_context_threadsafe_background インスタンスの構成おbジェクト.
  */
 typedef struct async_context_threadsafe_background_config {
 /**
- * the priority of the low priority IRQ
+ * 低優先度IRQの優先度
  */
     uint8_t low_priority_irq_handler_priority;
     /**
-     * a specific alarm pool to use (or NULL to use ta default)
+     * 使用する特定のアラームプール（デフォルトを使用する場合はNULL）
      *
-     * \note this alarm pool MUST be on the same core as the async_context
+     * \note このアラームプールはasync_contextと同じコアにある
+     * 必要があります。
      *
-     * The default alarm pool used is the "default alarm pool" (see
-     * \ref alarm_pool_get_default()) if available, and if that is on the same
-     * core, otherwise a private alarm_pool instance created during
-     * initialization.
+     * 使用するデフォルトアラームプールは"default alarm pool"が
+     * 利用でき、同じコアにある場合は "default alarm pool"です
+     * ( \ref alarm_pool_get_default() )。そうでなければ初期化時に
+     * 作成されたプライベートalarm_poolインスタンスです。
      */
     alarm_pool_t *custom_alarm_pool;
 } async_context_threadsafe_background_config_t;
@@ -69,36 +73,42 @@ struct async_context_threadsafe_background {
 };
 
 /*!
- * \brief Initialize an async_context_threadsafe_background instance using the specified configuration
+ * \brief async_context_threadsafe_background インスタンスを指定した構成で初期化する.
  * \ingroup async_context_threadsafe_background
  *
- * If this method succeeds (returns true), then the async_context is available for use
- * and can be de-initialized by calling async_context_deinit().
- * 
- * \param self a pointer to async_context_threadsafe_background structure to initialize
- * \param config the configuration object specifying characteristics for the async_context
- * \return true if initialization is successful, false otherwise
+ * この関数が成功した（trueが返った）ら async_context が利用可能と
+ * なります。また、async_context_deinit() を呼び出すことで解放する
+ * ことができます。
+ *
+ * \param self 初期化する async_context_threadsafe_background
+ * 構造体へのポインタ
+ * \param config async_contextの特性を指定した構成オブジェクト
+ * \return 初期化が成功したら true, そうでなければ false
  */
 bool async_context_threadsafe_background_init(async_context_threadsafe_background_t *self, async_context_threadsafe_background_config_t *config);
 
 /*!
- * \brief Return a copy of the default configuration object used by \ref async_context_threadsafe_background_init_with_defaults() 
+ * \brief \ref async_context_threadsafe_background_init_with_defaults() で
+ * 使用するデフォルト構成オブジェクトのコピーを返す.
  * \ingroup async_context_threadsafe_background
  *
- * The caller can then modify just the settings it cares about, and call \ref async_context_threadsafe_background_init()
- * \return the default configuration object
+ * 呼び出し元は必要な設定だけを変更して \ref async_context_threadsafe_background_init() を
+ * 呼び出すことができます。
+ * \return デフォルト構成オブジェクト
  */
 async_context_threadsafe_background_config_t async_context_threadsafe_background_default_config(void);
 
 /*!
- * \brief Initialize an async_context_threadsafe_background instance with default values
+ * \brief async_context_threadsafe_background インスタンスをデフォルト値で初期化する.instance with default values
  * \ingroup async_context_threadsafe_background
  *
- * If this method succeeds (returns true), then the async_context is available for use
- * and can be de-initialized by calling async_context_deinit().
- * 
- * \param self a pointer to async_context_threadsafe_background structure to initialize
- * \return true if initialization is successful, false otherwise
+ * この関数が成功した（trueが返った）ら async_context が利用可能と
+ * なります。また、async_context_deinit() を呼び出すことで解放する
+ * ことができます。
+ *
+ * \param self 初期化する async_context_threadsafe_background
+ * 構造体へのポインタ
+ * \return 初期化が成功したら true, そうでなければ false
  */
 static inline bool async_context_threadsafe_background_init_with_defaults(async_context_threadsafe_background_t *self) {
     async_context_threadsafe_background_config_t config = async_context_threadsafe_background_default_config();

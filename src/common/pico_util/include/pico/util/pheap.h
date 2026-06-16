@@ -21,17 +21,20 @@ extern "C" {
 /**
  * \file pheap.h
  * \defgroup util_pheap pheap
- * Pairing Heap Implementation
  * \ingroup pico_util
+ * \brief ペアリングヒープの実装.
  *
- * pheap defines a simple pairing heap. The implementation simply tracks array indexes, it is up to
- * the user to provide storage for heap entries and a comparison function.
+ * pheapはシンプルなペアリングヒープを定義します。この実装は単に配列の
+ * インデックスを追跡するだけであり、ヒープエントリのためのストレージと
+ * 比較関数を提供するのはユーザにまかされています。
  *
- * NOTE: This class is not safe for concurrent usage. It should be externally protected. Furthermore
- * if used concurrently, the caller needs to protect around their use of the returned id.
- * For example, ph_remove_and_free_head returns the id of an element that is no longer in the heap.
- * The user can still use this to look at the data in their companion array, however obviously further operations
- * on the heap may cause them to overwrite that data as the id may be reused on subsequent operations
+ * **注意:** このクラスはコンカレントな使用では安全でありません。外部で
+ * 保護する必要があります。さらに、コンカレントに使用する場合、呼び出し元は
+ * 返されたIDの使用について保護する必要があります。たとえば、ph_remove_and_free_head は
+ * もはやヒープにない要素のidを返します。ユーザはこのIDをコンパニオン配列から
+ * データを探すのに使用できますが、そのIDはその後の操作で再利用されている可能性が
+ * あるので、ヒープに対してなにか操作を行うとそのデータを上書きしてしまう可能性が
+ * あります。
  *
  */
 // PICO_CONFIG: PICO_PHEAP_MAX_ENTRIES, Maximum number of entries in the pheap, min=1, max=65534, default=255, group=pico_util
@@ -53,9 +56,12 @@ typedef struct pheap_node {
 } pheap_node_t;
 
 /**
- * A user comparator function for nodes in a pairing heap.
+ * \ingroup util_pheap
  *
- * \return true if a < b in natural order. Note this relative ordering must be stable from call to call.
+ * \brief ペアリングヒープに必要なユーザ提供の比較関数.
+ *
+ * \return 自然な順序で a < b の場合、true. この相対順序はすべての
+ * 呼び出しで同じでなければならない。
  */
 typedef bool (*pheap_comparator)(void *user_data, pheap_node_id_t a, pheap_node_id_t b);
 
@@ -71,31 +77,38 @@ typedef struct pheap {
 } pheap_t;
 
 /**
- * Create a pairing heap, which effectively maintains an efficient sorted ordering
- * of nodes. The heap itself stores no user per-node state, it is expected
- * that the user maintains a companion array. A comparator function must
- * be provided so that the heap implementation can determine the relative ordering of nodes
+ * \ingroup util_pheap
  *
- * \param max_nodes the maximum number of nodes that may be in the heap (this is bounded by
- *                  PICO_PHEAP_MAX_ENTRIES which defaults to 255 to be able to store indexes
- *                  in a single byte).
- * \param comparator the node comparison function
- * \param user_data a user data pointer associated with the heap that is provided in callbacks
- * \return a newly allocated and initialized heap
+ * \brief ノードの効率的なソート順序を維持するペアリングヒープを作成する.
+ *
+ * ヒープ自身はユーザのノードごとの状態を保存しないので、コンパニオン配列は
+ * ユーザが保持することが期待されています。ヒープの実装がノードの相対順序を
+ * 決定できるように比較関数を提供する必要があります。
+ *
+ * \param max_nodes ヒープに存在するノードの最大数（これはPICO_PHEAP_MAX_ENTRIESに
+ *  より制限されており、1バイトでインデックスを格納できるようにそのデフォルトは255です）。
+ * \param comparator ノード比較関数
+ * \param user_data コールバック関数で提供されているヒープに関連するユーザデータへのポインタ
+ * \return 新規に割り当てられ初期化されたヒープ
  */
 pheap_t *ph_create(uint max_nodes, pheap_comparator comparator, void *user_data);
 
 /**
- * Removes all nodes from the pairing heap
- * \param heap the heap
+ * \ingroup util_pheap
+ *
+ * \brief ペアリングヒープからすべてのノードを削除する.
+ * \param heap ヒープ
  */
 void ph_clear(pheap_t *heap);
 
 /**
- * De-allocates a pairing heap
+ * \ingroup util_pheap
  *
- * Note this method must *ONLY* be called on heaps created by ph_create()
- * \param heap the heap
+ * \brief ペアリングヒープの割り当てを破棄する.
+ *
+ * この関数はph_create()で作成したヒープ以外には使用できないことに注意してください。
+ *
+ * \param heap ヒープ
  */
 void ph_destroy(pheap_t *heap);
 
@@ -135,10 +148,12 @@ static pheap_node_id_t ph_merge_nodes(pheap_t *heap, pheap_node_id_t a, pheap_no
 }
 
 /**
- * Allocate a new node from the unused space in the heap
+ * \ingroup util_pheap
  *
- * \param heap the heap
- * \return an identifier for the node, or 0 if the heap is full
+ * \brief ヒープの未使用空間から新規ノードを割り当てる.
+ *
+ * \param heap ヒープ
+ * \return ノードの識別子、ヒープに空きがない場合は0
  */
 static inline pheap_node_id_t ph_new_node(pheap_t *heap) {
     if (!heap->free_head_id) return 0;
@@ -151,15 +166,16 @@ static inline pheap_node_id_t ph_new_node(pheap_t *heap) {
 }
 
 /**
- * Inserts a node into the heap.
+ * \ingroup util_pheap
  *
- * This method inserts a node (previously allocated by ph_new_node())
- * into the heap, determining the correct order by calling
- * the heap's comparator
+ * \brief ヒープにノードを挿入する.
  *
- * \param heap the heap
- * \param id the id of the node to insert
- * \return the id of the new head of the pairing heap (i.e. node that compares first)
+ * この関数はヒープに（事前にph_new_node()で割り当てた）ノードを挿入します。
+ * 挿入位置はヒープの比較関数を呼び出して決定します。
+ *
+ * \param heap ヒープ
+ * \param id 挿入するノードのID
+ * \return ペアリングヒープの新たなヘッド（すなわち、最初に比較するノード）のID
  */
 static inline pheap_node_id_t ph_insert_node(pheap_t *heap, pheap_node_id_t id) {
     assert(id);
@@ -170,17 +186,21 @@ static inline pheap_node_id_t ph_insert_node(pheap_t *heap, pheap_node_id_t id) 
 }
 
 /**
- * Returns the head node in the heap, i.e. the node
- * which compares first, but without removing it from the heap.
+ * \ingroup util_pheap
  *
- * \param heap the heap
- * \return the current head node id
+ * \brief ペアリングヒープのヘッドノード（すなわち、最初に比較するノード）を返す.
+ * ただし、そのノードはヒープから削除しない。
+ *
+ * \param heap ヒープ
+ * \return 現在のヘッドノードのID
  */
 static inline pheap_node_id_t ph_peek_head(pheap_t *heap) {
     return heap->root_id;
 }
 
 /**
+ * \ingroup util_pheap
+ *
  * Remove the head node from the pairing heap. This head node is
  * the node which compares first in the logical ordering provided
  * by the comparator.
@@ -198,6 +218,7 @@ static inline pheap_node_id_t ph_peek_head(pheap_t *heap) {
 pheap_node_id_t ph_remove_head(pheap_t *heap, bool free);
 
 /**
+ * \ingroup util_pheap
  * Remove the head node from the pairing heap. This head node is
  * the node which compares first in the logical ordering provided
  * by the comparator.
@@ -214,6 +235,7 @@ static inline pheap_node_id_t ph_remove_and_free_head(pheap_t *heap) {
 }
 
 /**
+ * \ingroup util_pheap
  * Remove and free an arbitrary node from the pairing heap. This is a more
  * costly operation than removing the head via ph_remove_and_free_head()
  *
@@ -224,6 +246,7 @@ static inline pheap_node_id_t ph_remove_and_free_head(pheap_t *heap) {
 bool ph_remove_and_free_node(pheap_t *heap, pheap_node_id_t id);
 
 /**
+ * \ingroup util_pheap
  * Determine if the heap contains a given node. Note containment refers
  * to whether the node is inserted (ph_insert_node()) vs allocated (ph_new_node())
  *
@@ -237,6 +260,7 @@ static inline bool ph_contains_node(pheap_t *heap, pheap_node_id_t id) {
 
 
 /**
+ * \ingroup util_pheap
  * Free a node that is not currently in the heap, but has been allocated
  *
  * @param heap the heap
@@ -255,6 +279,7 @@ static inline void ph_free_node(pheap_t *heap, pheap_node_id_t id) {
 }
 
 /**
+ * \ingroup util_pheap
  * Print a representation of the heap for debugging
  *
  * @param heap the heap
@@ -264,6 +289,7 @@ static inline void ph_free_node(pheap_t *heap, pheap_node_id_t id) {
 void ph_dump(pheap_t *heap, void (*dump_key)(pheap_node_id_t id, void *user_data), void *user_data);
 
 /**
+ * \ingroup util_pheap
  * Initialize a statically allocated heap (ph_create() using the C heap).
  * The heap member `nodes` must be allocated of size max_nodes.
  *
@@ -275,6 +301,7 @@ void ph_dump(pheap_t *heap, void (*dump_key)(pheap_node_id_t id, void *user_data
 void ph_post_alloc_init(pheap_t *heap, uint max_nodes, pheap_comparator comparator, void *user_data);
 
 /**
+ * \ingroup util_pheap
  * Define a statically allocated pairing heap. This must be initialized
  * by ph_post_alloc_init
  */

@@ -46,8 +46,10 @@ extern "C" {
 /** \file pico/cyw43_arch.h
  *  \defgroup pico_cyw43_arch pico_cyw43_arch
  *
- * CYW43ドライバ（Pico Wのワイヤレス用）とlwIP（TCP/IPスタック用）をSDKに統合する
- * ためのアーキテクチャです。Pico WのオンボードLEDにアクセスするためにも必要です。
+ * \brief CYW43ドライバ（Pico Wのワイヤレス用）とlwIP（TCP/IPスタック用）を
+ * SDKに統合するためのアーキテクチャ.
+ *
+ * Pico WのオンボードLEDにアクセスするためにも必要です。
  *
  * 低水準 \c cyw43_driver とlwIPスタックは定期的なサービスを必要とします。また、
  * 複数のコア/スレッドから呼び出すことが可能か否かについては制限があります。

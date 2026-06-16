@@ -10,9 +10,10 @@
 /** \file pico/async_context.h
  *  \defgroup async_context_freertos async_context_freertos
  *  \ingroup pico_async_context
- *  
- * async_context_freertos provides an implementation of \ref async_context that handles asynchronous
- * work in a separate FreeRTOS task.
+ *  \brief FreeRTOS向けの非同期コンテキストの実装.
+ *
+ * async_context_freertos は各FreeRTOSタスクにおける非同期作業を
+ * 処理する \ref async_context の実装を提供します。
  */
 #include "pico/async_context.h"
 
@@ -35,21 +36,21 @@ extern "C" {
 
 typedef struct async_context_freertos async_context_freertos_t;
 
-/** 
- * \brief Configuration object for async_context_freertos instances.
+/**
+ * \brief async_context_freertos インスタンスの構成オブジェクト.
  */
 typedef struct async_context_freertos_config {
     /**
-     * Task priority for the async_context task
+     * async_context タスクのタスク優先度
      */
     UBaseType_t task_priority;
     /**
-     * Stack size for the async_context task
+     * async_context タスクのスタックサイズ
      */
     configSTACK_DEPTH_TYPE task_stack_size;
     /**
-     * the core ID (see \ref portGET_CORE_ID()) to pin the task to.
-     * This is only relevant in SMP mode.
+     * タスクに割り当てられたコアのID ( \ref portGET_CORE_ID() 参照) .
+     * SMPモードでのみ有効です。
      */
 #if configUSE_CORE_AFFINITY && configNUM_CORES > 1
     UBaseType_t task_core_id;
@@ -67,24 +68,26 @@ struct async_context_freertos {
 };
 
 /*!
- * \brief Initialize an async_context_freertos instance using the specified configuration
+ * \brief async_context_freertos インスタンスを指定した構成で初期化する.
  * \ingroup async_context_freertos
  *
- * If this method succeeds (returns true), then the async_context is available for use
- * and can be de-initialized by calling async_context_deinit().
- * 
- * \param self a pointer to async_context_freertos structure to initialize
- * \param config the configuration object specifying characteristics for the async_context
- * \return true if initialization is successful, false otherwise
+ * この関数が成功すると async_context が利用可能となります。また、
+ * async_context_deinit() を呼び出すことで解放することができます。
+ *
+ * \param self 初期化する async_context_freertos 構造体へのポインタ
+ * \param config async_contextの特性を指定した構成オブジェクト
+ * \return 初期化が成功したら true, そうでなければ false
  */
 bool async_context_freertos_init(async_context_freertos_t *self, async_context_freertos_config_t *config);
 
 /*!
- * \brief Return a copy of the default configuration object used by \ref async_context_freertos_init_with_defaults() 
+ * \brief \ref async_context_freertos_init_with_defaults() で使用する
+ * デフォルト構成オブジェクトのコピーを返す.
  * \ingroup async_context_freertos
  *
- * The caller can then modify just the settings it cares about, and call \ref async_context_freertos_init()
- * \return the default configuration object
+ * 呼び出し元は必要な設定だけを変更して \ref async_context_freertos_init() を
+ * 呼び出すことができます。
+ * \return デフォルト構成オブジェクト
  */
  static inline async_context_freertos_config_t async_context_freertos_default_config(void) {
     async_context_freertos_config_t config = {
@@ -99,14 +102,14 @@ bool async_context_freertos_init(async_context_freertos_t *self, async_context_f
 }
 
 /*!
- * \brief Initialize an async_context_freertos instance with default values
+ * \brief async_context_freertos インスタンスをデフォルト値で初期化する.
  * \ingroup async_context_freertos
  *
- * If this method succeeds (returns true), then the async_context is available for use
- * and can be de-initialized by calling async_context_deinit().
- * 
- * \param self a pointer to async_context_freertos structure to initialize
- * \return true if initialization is successful, false otherwise
+ * この関数が成功すると async_context が利用可能となります。また、
+ * async_context_deinit() を呼び出すことで解放することができます。
+ *
+ * \param self 初期化する async_context_freertos 構造体へのポインタ
+ * \return 初期化が成功したら true, そうでなければ false
  */
  static inline bool async_context_freertos_init_with_defaults(async_context_freertos_t *self) {
     async_context_freertos_config_t config = async_context_freertos_default_config();

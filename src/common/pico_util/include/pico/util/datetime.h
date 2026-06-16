@@ -15,16 +15,16 @@ extern "C" {
 
 /** \file datetime.h
  * \defgroup util_datetime datetime
- * \brief Date/Time formatting
+ * \brief Date/Timeのフォーマット
  * \ingroup pico_util
  */
 
-/*! \brief  Convert a datetime_t structure to a string
+/*! \brief  datetime_t構造体を文字列に変換する.
  *  \ingroup util_datetime
  *
- * \param buf character buffer to accept generated string
- * \param buf_size The size of the passed in buffer
- * \param t The datetime to be converted.
+ * \param buf 生成される文字列を収める文字バッファ
+ * \param buf_size 渡されたパスのサイズ
+ * \param t 変換するdatetime
  */
 void datetime_to_str(char *buf, uint buf_size, const datetime_t *t);
 

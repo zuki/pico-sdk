@@ -23,30 +23,33 @@ extern "C" {
 /** \file hardware/interp.h
  *  \defgroup hardware_interp hardware_interp
  *
- * Hardware Interpolator API
+ * \brief ハードウェアインターポレータAPI.
  *
- * Each core is equipped with two interpolators (INTERP0 and INTERP1) which can be used to accelerate
- * tasks by combining certain pre-configured simple operations into a single processor cycle. Intended
- * for cases where the pre-configured operation is repeated a large number of times, this results in
- * code which uses both fewer CPU cycles and fewer CPU registers in the time critical sections of the
- * code.
+ * 各コアには2つのインターポレータ（INTERP0とINTERP1）が搭載されており、
+ * 事前に設定された特定の単純な処理をシングルプロセッササイクルにまとめる
+ * ことでタスクを高速化することができます。これはあらかじめ設定された
+ * 演算が何度も繰り返されるようなケースを想定したものであり、その結果、
+ * コードのタイムクリティカルな部分で使用されるCPUサイクルとCPUレジスタ
+ * 数を少なくすることができます。
  *
- * The interpolators are used heavily to accelerate audio operations within the SDK, but their
- * flexible configuration make it possible to optimise many other tasks such as quantization and
- * dithering, table lookup address generation, affine texture mapping, decompression and linear feedback.
+ * インターポレータはSDKではオーディオ処理を高速化するために多用されて
+ * いますが、その柔軟な構成により、量子化、ディザリング、アドレス表引き、
+ * アフィンテクスチャマッピング、解凍、線形フィードバックなど、他の
+ * 多くのタスクを最適化することができます。
  *
- * Please refer to the RP2040 datasheet for more information on the HW interpolators and how they work.
+ * ハードウェアインターポレータとその動作の詳細についてはRP2040の
+ * データシートを参照してください。
  */
 
 #define interp0 interp0_hw
 #define interp1 interp1_hw
 
-/** \brief Interpolator configuration
+/** \brief インターポレータの構成.
  *  \defgroup interp_config interp_config
  *  \ingroup hardware_interp
  *
- * Each interpolator needs to be configured, these functions provide handy helpers to set up configuration
- * structures.
+ * 各インターポレータは構成する必要があります。これらの関数は構成
+ * 構造体をセットアップするための便利なヘルパーを提供します。
  *
  */
 
@@ -59,64 +62,64 @@ static inline uint interp_index(interp_hw_t *interp) {
     return interp == interp1 ? 1 : 0;
 }
 
-/*! \brief Claim the interpolator lane specified
+/*! \brief 指定したインターポレータレーンを要求する.
  *  \ingroup hardware_interp
  *
- * Use this function to claim exclusive access to the specified interpolator lane.
+ * この関数を使用して指定したインターポレータレーンへの排他的アクセスを要求します。
  *
- * This function will panic if the lane is already claimed.
+ * 指定したレースがすでに要求されていた場合、この関数はパニックを引き起こします。
  *
- * \param interp Interpolator on which to claim a lane. interp0 or interp1
- * \param lane The lane number, 0 or 1.
+ * \param interp レーンを要求するインターポレータ. interp0かinterp1のいずれか
+ * \param lane レーン番号. 0か1のいずれか
  */
 void interp_claim_lane(interp_hw_t *interp, uint lane);
-// The above really should be called this for consistency
+// 実際には一貫性を保つために上の関数は次のマクロで呼び出すべきである
 #define interp_lane_claim interp_claim_lane
 
-/*! \brief Claim the interpolator lanes specified in the mask
+/*! \brief マスクで指定したインターポレータレーンを要求する.
  *  \ingroup hardware_interp
  *
- * \param interp Interpolator on which to claim lanes. interp0 or interp1
- * \param lane_mask Bit pattern of lanes to claim (only bits 0 and 1 are valid)
+ * \param interp レーンを要求するインターポレータ. interp0かinterp1のいずれか
+ * \param lane_mask 要求するレーンのビットパターン（ビット0と1だけが有効）
  */
 void interp_claim_lane_mask(interp_hw_t *interp, uint lane_mask);
 
-/*! \brief Release a previously claimed interpolator lane
+/*! \brief 先に要求したインターポレータレーンを解放する.
  *  \ingroup hardware_interp
  *
- * \param interp Interpolator on which to release a lane. interp0 or interp1
- * \param lane The lane number, 0 or 1
+ * \param interp レーンを解放するインターポレータ. interp0かinterp1のいずれか
+ * \param lane レーン番号. 0か1のいずれか
  */
 void interp_unclaim_lane(interp_hw_t *interp, uint lane);
-// The above really should be called this for consistency
+// 実際には一貫性を保つために上の関数は次のマクロで呼び出すべきである
 #define interp_lane_unclaim interp_unclaim_lane
 
-/*! \brief Determine if an interpolator lane is claimed
+/*! \brief インターポレータレーンが要求済みであるかチェックする.
  *  \ingroup hardware_interp
  *
- * \param interp Interpolator whose lane to check
- * \param lane The lane number, 0 or 1
- * \return true if claimed, false otherwise
+ * \param interp チェックするレーンを持つインターポレータ
+ * \param lane Tレーン番号. 0か1のいずれか
+ * \return 要求済みの場合は true、そうでなければ false
  * \see interp_claim_lane
  * \see interp_claim_lane_mask
  */
 bool interp_lane_is_claimed(interp_hw_t *interp, uint lane);
 
-/*! \brief Release previously claimed interpolator lanes \see interp_claim_lane_mask
+/*! \brief 先に要求したインターポレータレーンを解放する \see interp_claim_lane_mask
  *  \ingroup hardware_interp
  *
- * \param interp Interpolator on which to release lanes. interp0 or interp1
- * \param lane_mask Bit pattern of lanes to unclaim (only bits 0 and 1 are valid)
+ * \param interp レーンを解放するインターポレータ. interp0かinterp1のいずれか
+ * \param lane_mask 解放するレーンのビットパターン（ビット0と1だけが有効）
  */
 void interp_unclaim_lane_mask(interp_hw_t *interp, uint lane_mask);
 
-/*! \brief Set the interpolator shift value
+/*! \brief インターポレータのシフト値をセットする.
  *  \ingroup interp_config
  *
- * Sets the number of bits the accumulator is shifted before masking, on each iteration.
+ * イテレーションごとにアキュムレータをシフトするビット数をセットします。
  *
- * \param c Pointer to an interpolator config
- * \param shift Number of bits
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param shift ビット数
  */
 static inline void interp_config_set_shift(interp_config *c, uint shift) {
     valid_params_if(INTERP, shift < 32);
@@ -124,14 +127,15 @@ static inline void interp_config_set_shift(interp_config *c, uint shift) {
               ((shift << SIO_INTERP0_CTRL_LANE0_SHIFT_LSB) & SIO_INTERP0_CTRL_LANE0_SHIFT_BITS);
 }
 
-/*! \brief Set the interpolator mask range
+/*! \brief インターポレータのマスク範囲をセットする.
  *  \ingroup interp_config
  *
- * Sets the range of bits (least to most) that are allowed to pass through the interpolator
+ * インターポレータにパススルーするビット範囲（lsbからmsb)を
+ * セットします。
  *
- * \param c Pointer to interpolation config
- * \param mask_lsb The least significant bit allowed to pass
- * \param mask_msb The most significant bit allowed to pass
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param mask_lsb パスできるLSB (Least significant bit)
+ * \param mask_msb パスできるMSB (most significant bit)
  */
 static inline void interp_config_set_mask(interp_config *c, uint mask_lsb, uint mask_msb) {
     valid_params_if(INTERP, mask_msb < 32);
@@ -141,75 +145,81 @@ static inline void interp_config_set_mask(interp_config *c, uint mask_lsb, uint 
               ((mask_msb << SIO_INTERP0_CTRL_LANE0_MASK_MSB_LSB) & SIO_INTERP0_CTRL_LANE0_MASK_MSB_BITS);
 }
 
-/*! \brief Enable cross input
+/*! \brief クロス入力を有効にする.
  *  \ingroup interp_config
  *
- *  Allows feeding of the accumulator content from the other lane back in to this lanes shift+mask hardware.
- *  This will take effect even if the interp_config_set_add_raw option is set as the cross input mux is before the
- *  shift+mask bypass
+ *  対向レーンのアキュムレータ値をこのレーンのシフト+マスクハードウェアの
+ *  入力値とします。これはinterp_config_set_add_rawオプションが設定されて
+ *  いても有効です。クロス入力muxはシフト+マスクをバイパスする前に
+ *  適用されるからです。
  *
- * \param c Pointer to interpolation config
- * \param cross_input If true, enable the cross input.
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param cross_input trueの場合、クロス入力を有効にする.
  */
 static inline void interp_config_set_cross_input(interp_config *c, bool cross_input) {
     c->ctrl = (c->ctrl & ~SIO_INTERP0_CTRL_LANE0_CROSS_INPUT_BITS) |
               (cross_input ? SIO_INTERP0_CTRL_LANE0_CROSS_INPUT_BITS : 0);
 }
 
-/*! \brief Enable cross results
+/*! \brief クロス結果を有効にする.
  *  \ingroup interp_config
  *
- *  Allows feeding of the other lane’s result into this lane’s accumulator on a POP operation.
+ *  POP操作で対向レーンの結果をこのレーンのアキュムレータに入力するようにします。
  *
- * \param c Pointer to interpolation config
- * \param cross_result If true, enables the cross result
+ * \param c 補間構成構造体へのポインタ
+ * \param cross_result trueの場合、クロス結果を有効にする
  */
 static inline void interp_config_set_cross_result(interp_config *c, bool cross_result) {
     c->ctrl = (c->ctrl & ~SIO_INTERP0_CTRL_LANE0_CROSS_RESULT_BITS) |
               (cross_result ? SIO_INTERP0_CTRL_LANE0_CROSS_RESULT_BITS : 0);
 }
 
-/*! \brief Set sign extension
+/*! \brief 符号拡張をセットする.
  *  \ingroup interp_config
  *
- * Enables signed mode, where the shifted and masked accumulator value is sign-extended to 32 bits
- * before adding to BASE1, and LANE1 PEEK/POP results appear extended to 32 bits when read by processor.
+ *  符号拡張モードを有効にします。このモードではシフト+マスクされた
+ *  アキュムレータ値はBASE1に加算される前に32ビットに符号拡張されます。
+ *  また、LANE1のPEEK/POPの結果もプロセッサが読み取る際に32ビット拡張
+ *  された値が読み取られます。
  *
- * \param c Pointer to interpolation config
- * \param  _signed If true, enables sign extension
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param  _signed trueの場合、符号拡張を有効にする
  */
 static inline void interp_config_set_signed(interp_config *c, bool _signed) {
     c->ctrl = (c->ctrl & ~SIO_INTERP0_CTRL_LANE0_SIGNED_BITS) |
               (_signed ? SIO_INTERP0_CTRL_LANE0_SIGNED_BITS : 0);
 }
 
-/*! \brief Set raw add option
+/*! \brief RAW_ADDオプションをセットする.
  *  \ingroup interp_config
  *
- * When enabled, mask + shift is bypassed for LANE0 result. This does not affect the FULL result.
+ *  有効な場合、LANE0の結果にはシフト+マスク操作がバイパスされます。フルの結果
+ *  には影響しません。
  *
- * \param c Pointer to interpolation config
- * \param add_raw If true, enable raw add option.
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param add_raw trueの場合、RAW_ADDオプションを有効にする
  */
 static inline void interp_config_set_add_raw(interp_config *c, bool add_raw) {
     c->ctrl = (c->ctrl & ~SIO_INTERP0_CTRL_LANE0_ADD_RAW_BITS) |
               (add_raw ? SIO_INTERP0_CTRL_LANE0_ADD_RAW_BITS : 0);
 }
 
-/*! \brief Set blend mode
+/*! \brief ブレンドモードをセットする.
  *  \ingroup interp_config
  *
- * If enabled, LANE1 result is a linear interpolation between BASE0 and BASE1, controlled
- * by the 8 LSBs of lane 1 shift and mask value (a fractional number between 0 and 255/256ths)
+ *  有効な場合、LANE1の結果はBASE0とBASE1の線形補間となります。α値はレーン1の
+ *  シフト+マスク値の8 LSBにより制御されます（0 - 255/256 の小数値）
  *
- * LANE0 result does not have BASE0 added (yields only the 8 LSBs of lane 1 shift+mask value)
+ *  レーン0の結果にはBASE0の値は加算されません（レーン1のシフト+マスク値の
+ *  8 LSBだけがセットされます）
  *
- * FULL result does not have lane 1 shift+mask value added (BASE2 + lane 0 shift+mask)
+ *  フル結果にはレーン1のシフト+マスク値は加算されません（BASE2 + レーン0の
+ *  シフト+マスク値）
  *
- * LANE1 SIGNED flag controls whether the interpolation is signed or unsig
+ *  補間が符号付きか符号なしかはレーン1のSIGNEDフラグが制御します。
  *
- * \param c Pointer to interpolation config
- * \param blend Set true to enable blend mode.
+ * \param c インターポレータconfig構造体へのポインタ
+ * \param blend ブレンドモードを有効にするには true をセットする
 */
 static inline void interp_config_set_blend(interp_config *c, bool blend) {
     c->ctrl = (c->ctrl & ~SIO_INTERP0_CTRL_LANE0_BLEND_BITS) |
@@ -223,7 +233,7 @@ static inline void interp_config_set_blend(interp_config *c, bool blend) {
  * - LANE0 result is a shifted and masked ACCUM0, clamped by a lower bound of BASE0 and an upper bound of BASE1.
  * - Signedness of these comparisons is determined by LANE0_CTRL_SIGNED
  *
- * \param c Pointer to interpolation config
+ * \param c インターポレータconfig構造体へのポインタ
  * \param clamp Set true to enable clamp mode
  */
 static inline void interp_config_set_clamp(interp_config *c, bool clamp) {
@@ -239,7 +249,7 @@ static inline void interp_config_set_clamp(interp_config *c, bool clamp) {
  * No effect on the internal 32-bit datapath. Handy for using a lane to generate sequence
  * of pointers into flash or SRAM
  *
- * \param c Pointer to interpolation config
+ * \param c インターポレータconfig構造体へのポインタ
  * \param bits Sets the force bits to that specified. Range 0-3 (two bits)
  */
 static inline void interp_config_set_force_bits(interp_config *c, uint bits) {
@@ -249,27 +259,28 @@ static inline void interp_config_set_force_bits(interp_config *c, uint bits) {
               (bits << SIO_INTERP0_CTRL_LANE0_FORCE_MSB_LSB);
 }
 
-/*! \brief Get a default configuration
+/*! \brief デフォルトの構成を取得する.
  *  \ingroup interp_config
  *
- * \return A default interpolation configuration
+ * \return インターポレータのデフォルトの構成
  */
 static inline interp_config interp_default_config(void) {
     interp_config c = {0};
-    // Just pass through everything
+    // 単にすべてをパスするーする
     interp_config_set_mask(&c, 0, 31);
     return c;
 }
 
-/*! \brief Send configuration to a lane
+/*! \brief 構成データをレーンに送信する.
  *  \ingroup interp_config
  *
- * If an invalid configuration is specified (ie a lane specific item is set on wrong lane),
- * depending on setup this function can panic.
+ * 無効な構成データが指定された場合（レーン固有の項目が間違ったレーンに
+ * 設定された場合）、セットアップによってはこの関数はパニックに陥る
+ * 可能性があります。
  *
- * \param interp Interpolator instance, interp0 or interp1.
- * \param lane The lane to set
- * \param config Pointer to interpolation config
+ * \param interp インターポレータインスタンス. interp0かinterp1のいずれか
+ * \param lane セットするレーン
+ * \param config インターポレータ構成構造体へのポインタ
  */
 
 static inline void interp_set_config(interp_hw_t *interp, uint lane, interp_config *config) {

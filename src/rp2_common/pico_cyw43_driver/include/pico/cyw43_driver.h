@@ -10,8 +10,10 @@
 /** \file pico/cyw43_driver.h
  *  \defgroup pico_cyw43_driver pico_cyw43_driver
  *
- * 低水準cyw43_driverのラッパーです。バックグラウンドworkを処理する
- * ために \ref pico_async_context と統合されています。
+ * \brief 低水準cyw43_driverのラッパー.
+ *
+ * バックグラウンド作業を処理するために \ref pico_async_context と
+ * 統合されています。
  */
 
 #include "pico.h"

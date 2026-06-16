@@ -10,13 +10,17 @@
 /** \file pico/async_context.h
  *  \defgroup async_context_poll async_context_poll
  *  \ingroup pico_async_context
+ *  \brief ポーリングによる非同期コンテキストの実装.
  *
- * async_context_poll provides an implementation of \ref async_context that is intended for use with a simple
- * polling loop on one core. It is not thread safe.
+ * async_context_poll は1つのコアでの単純なポーリングの使用を
+ * 意図した \ref async_context の実装を提供します。スレッド
+ * セーフではありません。
  *
- * The \ref async_context_poll() method must be called periodically to handle asynchronous work that may now be
- * pending. \ref async_context_wait_for_work_until() may be used to block a polling loop until there is work to do,
- * and prevent tight spinning.
+ * 保留状態になっているかもしれない非同期作業を処理するために
+ * 定期的に \ref async_context_poll() を呼び出す必要があります。
+ * するべき作業を現れるまでポーリングループをブロックして、
+ * タイとスピニングを避けるために
+ * \ref async_context_wait_for_work_until() を使うことができます。
  */
 #include "pico/async_context.h"
 #include "pico/sem.h"
@@ -31,14 +35,15 @@ typedef struct async_context_poll {
 } async_context_poll_t;
 
 /*!
- * \brief Initialize an async_context_poll instance with default values
+ * \brief async_context_poll インスタンスをデフォルト値で初期化する.
  * \ingroup async_context_poll
  *
- * If this method succeeds (returns true), then the async_context is available for use
- * and can be de-initialized by calling async_context_deinit().
+ * この関数が成功した（trueが返った）ら async_context が利用可能と
+ * なります。また、async_context_deinit() を呼び出すことで解放する
+ * ことができます。
  *
- * \param self a pointer to async_context_poll structure to initialize
- * \return true if initialization is successful, false otherwise
+ * \param self 初期化する async_context_freertos 構造体へのポインタ
+ * \return 初期化が成功したら true, そうでなければ false
  */
 bool async_context_poll_init_with_defaults(async_context_poll_t *self);
 

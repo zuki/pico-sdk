@@ -18,6 +18,7 @@ extern "C" {
 * \defgroup pico_lwip_nosys pico_lwip_nosys
 * \ingroup pico_lwip
 * \brief \c NO_SYS=1 モードのSDKにlwIPを統合するためのGlueライブラリです.
+*
 * \ref async_context インスタンスを介してlwIPをフックするため必要な関数は
 * シンプルな \c init と \c deinit だけです。
 */

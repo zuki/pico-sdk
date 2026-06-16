@@ -1,7 +1,9 @@
 /**
  * \defgroup pico_lwip pico_lwip
  * \brief <a href="https://savannah.nongnu.org/projects/lwip/lwIP">lwIP</a>用の
- * 統合/ラッパーライブラリ。ドキュメントは<a href="https://www.nongnu.org/lwip/2_1_x/index.html">こちら</a>にあります.
+ * 統合/ラッパーライブラリ.
+ *
+ * ドキュメントは<a href="https://www.nongnu.org/lwip/2_1_x/index.html">こちら</a>にあります.
  *
  * 主たる \c \b pico_lwip ライブラリ自体は次の lwIP RAW API を集約したものです:
  * \c \b pico_lwip_core, \c \b pico_lwip_core4, \c \b pico_lwip_core6,
@@ -48,6 +50,8 @@
 
 /** \defgroup pico_lwip_arch pico_lwip_arch
  * \ingroup pico_lwip
- * \brief lwIPのコンパイルアダプタです. これは、独自に実装したい場合に備えて存在します。
+ * \brief lwIPのコンパイルアダプタ.
+ *
+ * 独自に実装したい場合に備えてここにあります。
  * デフォルトでは \c \b pico_lwip には含まれていません.
  */

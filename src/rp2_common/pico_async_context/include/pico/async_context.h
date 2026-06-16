@@ -6,6 +6,7 @@
 
 /** \file pico/async_context.h
  *  \defgroup pico_async_context pico_async_context
+ *  \brief 非同期コンテキスト.
  *
  * \ref async_context は論理的にはシングルスレッドのコンテキストを提供し、
  * workの実行や非同期イベントへの応答を行います。したって、 async_context の
@@ -227,10 +228,11 @@ static inline void async_context_acquire_lock_blocking(async_context_t *context)
  * された可能性のあるworkがチェックされ、async_contextが属するものと同じコアからの呼び出しで
  * ある場合、そのようなworkはこの呼び出し中に実行される場合があります。
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
- * worker method called by the async_context or from any other non-IRQ context.
+ * \note （async_context_pollではなく）ロックを提供する async_contexts では
+ * この関数はスレッドセーフです。また、async_contextにより呼び出される任意の
+ * ワーカ関数やその他の比IRQコンテキストから呼び出すことができます。
  *
- * \param context the async_context
+ * \param context async_context
  *
  * \see async_context_acquire_lock_blocking
  */
@@ -239,11 +241,11 @@ static inline void async_context_release_lock(async_context_t *context) {
 }
 
 /*!
- * \brief Assert if the caller does not own the lock for the async_context
+ * \brief 呼び出し元がasync_context用のロックを持っていない場合はアサートする.
  * \ingroup pico_async_context
- * \note this method is thread-safe
+ * \note この関数はスレッドセーフです。
  *
- * \param context the async_context
+ * \param context async_context
  */
 static inline void async_context_lock_check(async_context_t *context) {
     context->type->lock_check(context);
@@ -381,97 +383,99 @@ static inline bool async_context_remove_when_pending_worker(async_context_t *con
 }
 
 /*!
- * \brief Mark a "when pending" worker as having work pending
+ * \brief 「保留中」のワーカに保留中の仕事があることをマークする.
  * \ingroup pico_async_context
  *
- * The worker will be run from the async_context at a later time.
+ * ワーカは後に async_context で実行されます。
  *
- * \note this method may be called from any context including IRQs
+ * \note この関数はIRQを含む全てのコンテキストから呼び出すことができます。
  *
- * \param context the async_context
- * \param worker the "when pending" worker to mark as pending.
+ * \param context async_context
+ * \param worker 保留中のマークを付ける「保留中」のワーカ
  */
 static inline void async_context_set_work_pending(async_context_t *context, async_when_pending_worker_t *worker) {
     context->type->set_work_pending(context, worker);
 }
 
 /*!
- * \brief Perform any pending work for polling style async_context
+ * \brief ポーリングスタイルの async_context で保留中の作業を実行する.
  * \ingroup pico_async_context
  *
- * For a polled async_context (e.g. \ref async_context_poll) the user is responsible for calling this method
- * periodically to perform any required work.
+ * ポーリングによる async_context （ \ref async_context_poll など)では、
+ * 必要な作業を行うためにユーザは定期的にこの関数を呼び出す責任があります。
  *
- * This method may immediately perform outstanding work on other context types, but is not required to.
+ * この関数は他のコンテキスト型に対して直ちに優れた作業を行うことができるが、
+ * それは必須ではありません。
  *
- * \param context the async_context
+ * \param context async_context
  */
 static inline void async_context_poll(async_context_t *context) {
     if (context->type->poll) context->type->poll(context);
 }
 
 /*!
- * \brief sleep until the specified time in an async_context callback safe way
+ * \brief async_contextコールバックの安全な方法で、指定された時間までスリープする.
  * \ingroup pico_async_context
  *
- * \note for async_contexts that provide locking (not async_context_poll), this method is threadsafe. and may be called from within any
- * worker method called by the async_context or from any other non-IRQ context.
+ * \note （async_context_pollではない) ロックを提供するasync_context の場合、
+ * この関数はスレッドセーフです。async_contextから呼び出された任意のワーカー関数や
+ * その他の非IRQコンテキストから呼び出すことができます。
  *
- * \param context the async_context
- * \param until the time to sleep until
+ * \param context async_context
+ * \param until その時間までスリープする時間
  */
 static inline void async_context_wait_until(async_context_t *context, absolute_time_t until) {
     context->type->wait_until(context, until);
 }
 
 /*!
- * \brief Block until work needs to be done or the specified time has been reached
+ * \brief 作業が必要になるか、指定した時間に達するまでブロックする.
  * \ingroup pico_async_context
  *
- * \note this method should not be called from a worker callback
+ * \note この関数はワーカコールバックからは呼び出してはいけません。
  *
- * \param context the async_context
- * \param until the time to return at if no work is required
+ * \param context async_context
+ * \param until 作業が必要なかった場合にリターンする時間
  */
 static inline void async_context_wait_for_work_until(async_context_t *context, absolute_time_t until) {
     context->type->wait_for_work_until(context, until);
 }
 
 /*!
- * \brief Block until work needs to be done or the specified number of milliseconds have passed
+ * \brief 作業が必要になるか、指定したミリ秒が過ぎるまでブロックする.
  * \ingroup pico_async_context
  *
- * \note this method should not be called from a worker callback
+ * \note この関数はワーカコールバックからは呼び出してはいけません。
  *
- * \param context the async_context
- * \param ms the number of milliseconds to return after if no work is required
+ * \param context async_context
+ * \param ms 作業が必要なかった場合にリターンするミリ秒数
  */
 static inline void async_context_wait_for_work_ms(async_context_t *context, uint32_t ms) {
     async_context_wait_for_work_until(context, make_timeout_time_ms(ms));
 }
 
 /*!
- * \brief Return the processor core this async_context belongs to
+ * \brief この async_context が所属するプロセッサコアを返す。
  * \ingroup pico_async_context
  *
- * \param context the async_context
- * \return the physical core number
+ * \param context async_context
+ * \return 物理コア番号
  */
 static inline uint async_context_core_num(const async_context_t *context) {
     return context->core_num;
 }
 
 /*!
- * \brief End async_context processing, and free any resources
+ * \brief async_context処理を終了し、すべてのリソースを解放する.
  * \ingroup pico_async_context
  *
- * Note the user should clean up any resources associated with workers
- * in the async_context themselves.
+ * async_context内のワーカーに関連するリソースはユーザ自身が
+ * クリーンアップする必要があることに注意してください。
  *
- * Asynchronous (non-polled) async_contexts guarantee that no
- * callback is being called once this method returns.
+ * 非同期な（ポーリングでない）async_contextsはこの関数がリターンした
+ * 後はコールバックが呼び出されないことを保証します。
  *
- * \param context the async_context
+ * \param context async_context
  */
 static inline void async_context_deinit(async_context_t *context) {
     context->type->deinit(context);

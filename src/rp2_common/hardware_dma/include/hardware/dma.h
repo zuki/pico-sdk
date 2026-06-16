@@ -19,22 +19,23 @@ extern "C" {
 /** \file hardware/dma.h
  *  \defgroup hardware_dma hardware_dma
  *
- * DMA Controller API
+ * \brief DMA制御API.
  *
- * The RP2040 Direct Memory Access (DMA) master performs bulk data transfers on a processor’s
- * behalf. This leaves processors free to attend to other tasks, or enter low-power sleep states. The
- * data throughput of the DMA is also significantly higher than one of RP2040’s processors.
+ * RP2040のDMA (Direct Memory Access) マスターはプロセッサに代わってバルク
+ * データの転送を実行します。これにより、プロセッサは他のタスクに専念したり、
+ * 低消費電力のスリープ状態に入ることができます。また、DMAのデータスループットは
+ * RP2040のプロセッサよりもはるかに高いです。
  *
- * The DMA can perform one read access and one write access, up to 32 bits in size, every clock cycle.
- * There are 12 independent channels, which each supervise a sequence of bus transfers, usually in
- * one of the following scenarios:
+ * DMAは1クロックサイクルごとに最大32ビットの読み出しアクセスと書き込みアクセスを
+ * 1回ずつ実行できます。12個の独立したチャンネルがあり、それぞれがつぎのシナリオの
+ * いずれかのバス転送を監視します。
  *
- * * Memory to peripheral
- * * Peripheral to memory
- * * Memory to memory
+ * * メモリからペリフェラルへの転送
+ * * ペリフェラルからメモリへの転送
+ * * メモリからメモリへの転送
  */
 
-// these are not defined in generated dreq.h
+// 以下は生成される dreg.h では定義されていない
 #define DREQ_DMA_TIMER0 DMA_CH0_CTRL_TRIG_TREQ_SEL_VALUE_TIMER0
 #define DREQ_DMA_TIMER1 DMA_CH0_CTRL_TRIG_TREQ_SEL_VALUE_TIMER1
 #define DREQ_DMA_TIMER2 DMA_CH0_CTRL_TRIG_TREQ_SEL_VALUE_TIMER2
@@ -48,7 +49,8 @@ extern "C" {
 
 static inline void check_dma_channel_param(__unused uint channel) {
 #if PARAM_ASSERTIONS_ENABLED(DMA)
-    // this method is used a lot by inline functions so avoid code bloat by deferring to function
+    // このメソッドはインライン関数で多用されるので関数に委譲して
+    //  コードの肥大化を避ける
     extern void check_dma_channel_param_impl(uint channel);
     check_dma_channel_param_impl(channel);
 #endif
@@ -63,54 +65,59 @@ inline static dma_channel_hw_t *dma_channel_hw_addr(uint channel) {
     return &dma_hw->ch[channel];
 }
 
-/*! \brief Mark a dma channel as used
+/*! \brief dmaチャネルを使用済みであるとマークする.
  *  \ingroup hardware_dma
  *
- * Method for cooperative claiming of hardware. Will cause a panic if the channel
- * is already claimed. Use of this method by libraries detects accidental
- * configurations that would fail in unpredictable ways.
+ * ハードウェアが協調的に使用宣言するための関数です。チャネルがすでに
+ * 使用済みと宣言されている場合はパニックを引き起こします。ライブラリが
+ * このメソッドを使用すると予測不可能な方法で失敗するような偶発的な
+ * 構成を検出できます。
  *
- * \param channel the dma channel
+ * \param channel dmaチャネル
  */
 void dma_channel_claim(uint channel);
 
-/*! \brief Mark multiple dma channels as used
+/*! \brief 複数のdmaチャネルを使用済みであるとマークする.
  *  \ingroup hardware_dma
  *
- * Method for cooperative claiming of hardware. Will cause a panic if any of the channels
- * are already claimed. Use of this method by libraries detects accidental
- * configurations that would fail in unpredictable ways.
+ * ハードウェアが協調的に使用宣言するための関数です。チャネルの
+ * いずれｋがすでに使用済みと宣言されている場合はパニックを引き起こします。
+ * ライブラリがこのメソッドを使用すると予測不可能な方法で失敗するような
+ * 偶発的な構成を検出できます。
  *
- * \param channel_mask Bitfield of all required channels to claim (bit 0 == channel 0, bit 1 == channel 1 etc)
+ * \param channel_mask 使用済みの宣言に必要なすべてのチャネルのビット
+ * フィールド（ビット 0 == チャネル 0, ビット 1 == チャネル 1など）
  */
 void dma_claim_mask(uint32_t channel_mask);
 
-/*! \brief Mark a dma channel as no longer used
+/*! \brief dmaチャネルを未使用であるとマークする.
  *  \ingroup hardware_dma
  *
- * \param channel the dma channel to release
+ * \param channel 解放するdmaチャネル
  */
 void dma_channel_unclaim(uint channel);
 
-/*! \brief Mark multiple dma channels as no longer used
+/*! \brief 複数のdmaチャネルを未使用であるとマークする
  *  \ingroup hardware_dma
  *
- * \param channel_mask Bitfield of all channels to unclaim (bit 0 == channel 0, bit 1 == channel 1 etc)
+ * \param channel_mask 未使用にするすべてのチャネルのビットフィールド
+ * （ビット 0 == チャネル 0, ビット 1 == チャネル 1など）
  */
 void dma_unclaim_mask(uint32_t channel_mask);
 
-/*! \brief Claim a free dma channel
+/*! \brief 空いているdmaチャネルを要求する.
  *  \ingroup hardware_dma
  *
- * \param required if true the function will panic if none are available
- * \return the dma channel number or -1 if required was false, and none were free
+ * \param required trueの場合、利用可能なチェ成がない場合関数はパニックを
+ * 引き起こす.
+ * \return dmaチャネル番号、requiredがfalseであきちゃんるがない場合は -1
  */
 int dma_claim_unused_channel(bool required);
 
 /*! \brief Determine if a dma channel is claimed
  *  \ingroup hardware_dma
  *
- * \param channel the dma channel
+ * \param channel dmaチャネル
  * \return true if the channel is claimed, false otherwise
  * \see dma_channel_claim
  * \see dma_channel_claim_mask
@@ -301,8 +308,7 @@ static inline void channel_config_set_enable(dma_channel_config *c, bool enable)
  * \param sniff_enable True to enable the Sniff HW access to this DMA channel.
  */
 static inline void channel_config_set_sniff_enable(dma_channel_config *c, bool sniff_enable) {
-    c->ctrl = sniff_enable ? (c->ctrl | DMA_CH0_CTRL_TRIG_SNIFF_EN_BITS) : (c->ctrl &
-                                                                             ~DMA_CH0_CTRL_TRIG_SNIFF_EN_BITS);
+    c->ctrl = sniff_enable ? (c->ctrl | DMA_CH0_CTRL_TRIG_SNIFF_EN_BITS) : (c->ctrl & ~DMA_CH0_CTRL_TRIG_SNIFF_EN_BITS);
 }
 
 /*! \brief  Get the default channel configuration for a given channel
@@ -450,7 +456,7 @@ static inline void dma_channel_configure(uint channel, const dma_channel_config 
  * \param read_addr Sets the initial read address
  * \param transfer_count Number of transfers to make. Not bytes, but the number of transfers of channel_config_set_transfer_data_size() to be sent.
  */
-inline static void __attribute__((always_inline)) dma_channel_transfer_from_buffer_now(uint channel, 
+inline static void __attribute__((always_inline)) dma_channel_transfer_from_buffer_now(uint channel,
                                                                                        const volatile void *read_addr,
                                                                                        uint32_t transfer_count) {
 //    check_dma_channel_param(channel);

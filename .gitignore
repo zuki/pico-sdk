@@ -3,4 +3,5 @@
 cmake-*
 .DS_Store
 build
+build_mini
 *.org
